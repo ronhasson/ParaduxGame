@@ -1,0 +1,173 @@
+body {
+    background-color: #f3f3f3;
+    margin: 0;
+    background-image: url(128-163.jpg);
+    background-repeat: repeat;
+    overflow: hidden;
+}
+
+#boardDiv {
+    display: flex;
+    width: 100%;
+    height: 88vh;
+}
+
+table {
+    display: table-header-group;
+    margin: 3em auto auto;
+    font-size: 1.5em;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    background: rgb(233, 223, 196);
+
+    background: -webkit-linear-gradient(left, rgba(233, 223, 196, 1) 0%, rgba(233, 223, 196, 1) 1%, rgba(237, 227, 200, 1) 2%, rgba(237, 227, 200, 1) 24%, rgba(235, 221, 195, 1) 25%, rgba(233, 223, 196, 1) 48%, rgba(235, 221, 195, 1) 49%, rgba(230, 216, 189, 1) 52%, rgba(230, 216, 189, 1) 53%, rgba(233, 219, 192, 1) 54%, rgba(230, 216, 189, 1) 55%, rgba(230, 216, 189, 1) 56%, rgba(233, 219, 192, 1) 57%, rgba(230, 216, 189, 1) 58%, rgba(230, 216, 189, 1) 73%, rgba(233, 219, 192, 1) 74%, rgba(233, 219, 192, 1) 98%, rgba(235, 221, 195, 1) 100%),
+        #aa865999;
+
+    background-repeat: repeat;
+    background-size: auto auto;
+    background-size: 63px;
+    background-blend-mode: multiply;
+
+    padding: 1em;
+    border: 1em ridge #aa8659;
+}
+
+tr {
+    display: flex;
+    justify-content: center;
+}
+
+td {
+    width: 4em;
+    height: 4em;
+    text-align: center;
+    border-radius: 100%;
+    border-color: #aaa0;
+    border-style: solid;
+    cursor: default;
+    box-sizing: border-box;
+    font-weight: bold;
+    box-shadow: inset 0px 0px 1.2em 0px #00000080;
+    border-collapse: separate;
+    shape-outside: circle(45% at 50% 50%) border-box;
+    clip-path: circle(45% at 50% 50%);
+}
+
+td.selected {
+    border-color: rgba(255, 166, 0, 1);
+    border-width: 0.7em;
+    transition: 0.4s;
+}
+
+td.selected2 {
+    border-color: rgba(255, 166, 0, 1);
+    border-width: 0.7em;
+    transition: 0.4s;
+    border-style: double;
+}
+
+td:hover {
+    background-color: rgba(255, 166, 0, 1) !important;
+}
+
+td.pairable {
+    background-color: rgb(0, 140, 255) !important;
+}
+
+td.blocked {
+    background-color: black !important;
+    border-radius: 0;
+    transform: rotate(0deg);
+    cursor: not-allowed;
+    color: black !important;
+    display: none;
+}
+
+td.hiddenFriendly {
+    background-color: #98989880;
+}
+
+td.hiddenFriendly:hover {
+    background-color: #d1a62f9f;
+}
+
+td.hidden {
+    background-color: #665a5a;
+    color: #665a5a !important;
+}
+
+td.friendly {
+    color: rgb(2, 2, 170);
+    box-shadow: inset -1em -1em 2em 0px #d7d7d7;
+    background-color: white;
+}
+
+td.enemy {
+    color: rgb(170, 2, 2);
+    box-shadow: inset -1em -1em 1.5em 0px #000;
+    background-color: #1d1d1de6;
+}
+
+td.natural {
+    color: rgb(27, 27, 27);
+}
+
+td.moveable {
+    background-color: #30ffcc99;
+}
+
+#all {
+    display: table;
+    width: 100%;
+}
+
+#header {
+    display: table-caption;
+    height: 6vh;
+    background-color: #007dea;
+    font-size: 4.5vh;
+}
+
+#gameview {
+    display: table-cell;
+}
+
+.sidebar {
+    display: table-cell;
+    max-width: 10vw;
+    box-shadow: -9px 0px 8px -7px black;
+    min-width: 7vw;
+    height: 88vh;
+    padding: 2vh 1vw;
+    margin-top: 0;
+    isolation: isolate;
+}
+
+#infobar {
+    background-color: grey;
+    width: 100%;
+    display: table-caption;
+    border-top: 2px grey solid;
+}
+
+h2 {
+    margin: 0;
+    padding: 1.1vh 1vw;
+}
+
+.unitBtn {
+    padding: 0.5vh 0.5vw 0.5vh 0.5vw;
+}
+
+.unitBtn div:first-child {
+    background: whitesmoke;
+    padding: 5px;
+    height: 2vh;
+    width: 1vw;
+    margin: auto;
+}

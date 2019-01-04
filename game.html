@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Paradux</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" href="game.css">
+</head>
+
+<body>
+    <div id="all">
+        <div id="header">
+            <font style="vertical-align: middle;">Paradux</font>
+            <input type="button" value="New" onclick="drawBoard()" style="height: 4vh;vertical-align: middle;">
+            <input type="button" value="Switch" onclick="switchPlaces()" style="height: 4vh;vertical-align: middle;">
+        </div>
+        <div id="gameview">
+            <div id="boardDiv"></div>
+        </div>
+
+    </div>
+
+</body>
+
+<script rel="preload" src="board.js"></script>
+<script rel="preload" src="units.js"></script>
+<script rel="preload" src="gamehelper.js"></script>
+
+<script rel="preload" src="game.js"></script>
+
+</html>
