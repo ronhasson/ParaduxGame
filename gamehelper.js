@@ -203,7 +203,7 @@ function showMoveable(target, target2) {
         if ((JSON.stringify(board.field[x][y].cont) !== JSON.stringify(Object.create(null)) && !boardTable.rows[y].cells[x].classList.contains("selected2")) || boardTable.rows[y].cells[x].classList.contains("blocked")) {
             continue;
         }
-        if ((JSON.stringify(board.field[x2][y2].cont) !== JSON.stringify(Object.create(null)) && !boardTable.rows[y2].cells[x2].classList.contains("selected2")) || boardTable.rows[y2].cells[x2].classList.contains("blocked")) {
+        if ((JSON.stringify(board.field[x2][y2].cont) !== JSON.stringify(Object.create(null)) && !boardTable.rows[y2].cells[x2].classList.contains("selected")) || boardTable.rows[y2].cells[x2].classList.contains("blocked")) {
             continue;
         }
         boardTable.rows[y].cells[x].classList.add("moveable");
