@@ -57,6 +57,7 @@ function drawBoard() {
     };
 
     boardDiv.appendChild(boardTable);
+    changeStyle(localStorage.getItem('style'));
 
     boardTable.addEventListener("click", tableClicked);
 

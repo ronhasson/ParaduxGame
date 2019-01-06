@@ -8,15 +8,47 @@
     <link rel="stylesheet" href="game.css">
 </head>
 
-<body>
+<body style="font-size: 100%;">
     <div id="all">
         <div id="header">
-            <font style="vertical-align: middle;">Paradux</font>
-            <input type="button" value="New" onclick="drawBoard()" style="height: 4vh;vertical-align: middle;">
-            <input type="button" value="Switch" onclick="switchPlaces()" style="height: 4vh;vertical-align: middle;">
+            <font style="vertical-align: middle; font-size: 3em;">Paradux</font>
+            <input type="button" value="New" onclick="drawBoard()">
+            <input type="button" value="Switch" class="switchBtn" onclick="switchPlaces()">
+            <div class="dropdown">
+                <input type="button" value="Settings" onclick="settingsDropDown()" class="dropbtn">
+                <div id="myDropdown" class="dropdown-content">
+                    <font id="fontText">Size: 100%</font>
+                    <input type="button" value="-" id="downSize" onclick="changeSize(-10)">
+                    <input type="button" value="+" id="upSize" onclick="changeSize(10)">
+                    <br>
+                    <font>Hover effect</font>
+                    <input type="button" value="Disable" id="hoverBtn" onclick="changeHover()">
+                    <br>
+                    <font>Styles:</font>
+                    <br>
+                    <button onclick="changeStyle('def')">
+                        <img src="DefaultBG.jpg">
+                        <font>Default</font>
+                    </button>
+                    <button onclick="changeStyle('sand')">
+                        <img src="sand.jpg">
+                        <font>Sand</font>
+                    </button>
+                    <br>
+                    <button onclick="changeStyle('black')">
+                        <img src="black.jpg">
+                        <font>Shadow</font>
+                    </button>
+                    <button onclick="changeStyle('blue')">
+                        <img src="blue1.jpg">
+                        <font>Blue</font>
+                    </button>
+                </div>
+            </div>
+
         </div>
         <div id="gameview">
-            <div id="boardDiv"></div>
+            <div id="boardDiv" class="canHover"></div>
         </div>
 
     </div>
@@ -26,6 +58,7 @@
 <script rel="preload" src="board.js"></script>
 <script rel="preload" src="units.js"></script>
 <script rel="preload" src="gamehelper.js"></script>
+<script src="uiScript.js"></script>
 
 <script rel="preload" src="game.js"></script>
 
