@@ -19,7 +19,7 @@ Have fun!
 
 #### *todo*
 - [x] base game
-- [ ] improve the ui
+- [x] improve the ui
 - [ ] win condition and announce the winner
 - [ ] p2p multiplyer
 - [ ] matchmaking?
