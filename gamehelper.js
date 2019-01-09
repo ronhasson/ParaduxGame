@@ -58,6 +58,8 @@ function drawBoard() {
 
     boardDiv.appendChild(boardTable);
     changeStyle(localStorage.getItem('style'));
+    tempHover(true);
+    disableBoard = false;
 
     boardTable.addEventListener("click", tableClicked);
 
@@ -240,4 +242,119 @@ function unshowMoveable(target) {
         boardTable.rows[y].cells[x].classList.remove("moveable");
 
     }
+}
+
+function checkVictory(s1, s2) {
+    let arr = [
+        [1, 0],
+        [0, 1],
+        [1, -1]
+    ];
+
+    let b1, b2 = false;
+    let s10, s11, s12, s20, s21, s22;
+
+    s10 = check4(s1, arr[0]);
+    s11 = check4(s1, arr[1]);
+    s12 = check4(s1, arr[2]);
+
+    s20 = check4(s2, arr[0]);
+    s21 = check4(s2, arr[1]);
+    s22 = check4(s2, arr[2]);
+
+
+    b1 = s10 || s11 || s12;
+    b2 = s20 || s21 || s22;
+
+    if (b1 && b2) { //tie? go on until only one wins? who the f will get a try other than a tester
+        return;
+    }
+    if (b1) {
+        disableBoard = true
+        tempHover(false);
+        if (s10)
+            markWinner(s1, arr[0]);
+        if (s11)
+            markWinner(s1, arr[1]);
+        if (s12)
+            markWinner(s1, arr[2]);
+    }
+    if (b2) {
+        disableBoard = true
+        tempHover(false);
+        if (s20)
+            markWinner(s2, arr[0]);
+        if (s21)
+            markWinner(s2, arr[1]);
+        if (s22)
+            markWinner(s2, arr[2]);
+    }
+}
+
+function check4(target, dir) {
+    let x = getTdPos(target).x;
+    let y = getTdPos(target).y;
+    let color = board.field[x][y].cont.team;
+
+    let count = 0;
+    while (JSON.stringify(board.field[x][y].cont) !== JSON.stringify(Object.create(null)) && board.field[x][y].cont.team == color) {
+        x += dir[0];
+        y += dir[1];
+        count++;
+        if (y < 0 || y > board.size - 1 || x < 0 || x > board.size - 1) {
+            break;
+        }
+
+    }
+
+    x = getTdPos(target).x;
+    y = getTdPos(target).y;
+    let revDir = dir.map(obj => {
+        return obj * -1
+    })
+    count--;
+    while (JSON.stringify(board.field[x][y].cont) !== JSON.stringify(Object.create(null)) && board.field[x][y].cont.team == color) {
+        x += revDir[0];
+        y += revDir[1];
+        count++;
+        if (y < 0 || y > board.size - 1 || x < 0 || x > board.size - 1) {
+            break;
+        }
+
+    }
+    console.log("team: " + color + "; in a row: " + count);
+    return (count >= 4) ? true : false;
+}
+
+function markWinner(target, dir) {
+    let x = getTdPos(target).x;
+    let y = getTdPos(target).y;
+    let color = board.field[x][y].cont.team;
+
+    while (JSON.stringify(board.field[x][y].cont) !== JSON.stringify(Object.create(null)) && board.field[x][y].cont.team == color) {
+        boardTable.rows[y].cells[x].classList.add("winningBall");
+        x += dir[0];
+        y += dir[1];
+        if (y < 0 || y > board.size - 1 || x < 0 || x > board.size - 1) {
+            break;
+        }
+
+    }
+
+    x = getTdPos(target).x;
+    y = getTdPos(target).y;
+    let revDir = dir.map(obj => {
+        return obj * -1
+    })
+
+    while (JSON.stringify(board.field[x][y].cont) !== JSON.stringify(Object.create(null)) && board.field[x][y].cont.team == color) {
+        boardTable.rows[y].cells[x].classList.add("winningBall");
+        x += revDir[0];
+        y += revDir[1];
+        if (y < 0 || y > board.size - 1 || x < 0 || x > board.size - 1) {
+            break;
+        }
+
+    }
+
 }

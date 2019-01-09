@@ -7,13 +7,15 @@ var selected2 = "";
 var lastSelected = "";
 var insertQ = "";
 
+var disableBoard = false;
+
 function tableClicked(e) {
     console.log(getTdPos(e.target));
     console.log(selected);
     console.log(lastSelected);
     console.log(selected2);
 
-    if (e.target.tagName != "TD") {
+    if (e.target.tagName != "TD" || disableBoard) {
         return;
     }
     if (selected == "insert") {
@@ -92,6 +94,9 @@ function switchPlaces() {
         selected.classList.remove("selected");
         selected2.classList.remove("selected2");
         unshowMoveable(lastSelected);
+
+        endTurn(selected, selected2);
+
         selected = "";
         selected2 = "";
         lastSelected = "";
@@ -120,6 +125,16 @@ function movePairs(targetS1, targetS2, targetToLocation) {
     updateLand(ox2, oy2);
     updateLand(ox1 + relX, oy1 + relY);
     updateLand(ox2 + relX, oy2 + relY);
+
+    endTurn(boardTable.rows[oy1 + relY].cells[ox1 + relX], boardTable.rows[oy2 + relY].cells[ox2 + relX]);
+}
+
+function endTurn(selected1, selected2) {
+    // if multiplayer
+    //      tempHover(false)
+    //      disableBoard = true
+    //      send info    
+    checkVictory(selected1, selected2);
 }
 
 function insert(c) {

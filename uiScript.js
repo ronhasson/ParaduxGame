@@ -77,3 +77,18 @@ function changeHover() {
         elem.classList.add("canHover");
     }
 }
+
+function tempHover(bool) {
+    let btn = document.getElementById("hoverBtn");
+    let elem = document.getElementById("boardDiv");
+
+    if (!bool) { //wants to disable hover - not their turn
+        elem.classList.remove("canHover");
+    } else { //wants to enable hover
+        if (btn.value == "Enable") { //user hates hover
+            return;
+        } else {
+            elem.classList.add("canHover");
+        }
+    }
+}
