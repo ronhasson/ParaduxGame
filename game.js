@@ -141,7 +141,11 @@ function endTurn(selected1, selected2) {
 
 function enableMulti() {
     //var myWorker = new Worker('multiplayerWorker.js');
-    var peer = new Peer();
+    var peer = new Peer(null, {
+        host: '0.peerjs.com',
+        port: "",
+        secure: true
+    })
     console.log(peer);
     peer.on('open', function (id) {
         console.log('My peer ID is: ' + id);
