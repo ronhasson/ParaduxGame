@@ -3,6 +3,10 @@ changeStyle(localStorage.getItem('style'));
 function settingsDropDown() {
     document.getElementById("myDropdown").classList.toggle("show");
 }
+
+function multiplayerDropDown() {
+    document.getElementById("myDropdown2").classList.toggle("show");
+}
 // Close the dropdown if the user clicks outside of it
 window.onclick = function (event) {
     if (!event.target.matches('.dropbtn') && !event.target.parentNode.matches('.dropdown-content')) {

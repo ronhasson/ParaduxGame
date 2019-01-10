@@ -137,9 +137,10 @@ td.moveable {
 
 #header input {
     vertical-align: middle;
-    font-size: 2em;
+    font-size: 2.3em;
     margin: auto;
     cursor: pointer;
+    font-family: monospace;
 }
 
 #gameview {
@@ -195,7 +196,6 @@ h2 {
     position: absolute;
     background-color: #f1f1f1;
     min-width: 160px;
-    overflow: auto;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     right: 0;
     z-index: 1;
@@ -209,11 +209,6 @@ h2 {
 .dropdown-content font {
     font-size: 1.1em;
     padding: 10px;
-}
-
-.dropdown-content input {
-    width: 1.2em;
-    height: 1.2em;
 }
 
 .show {
@@ -235,9 +230,8 @@ h2 {
 }
 
 #hoverBtn {
-    width: 4.2em;
     font-size: 1.1em !important;
-    height: auto;
+    height: 2em;
 }
 
 @keyframes colorRotate {

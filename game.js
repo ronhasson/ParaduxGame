@@ -82,7 +82,7 @@ function tableClicked(e) {
     }
 }
 
-function switchPlaces() {
+function switchPlaces(fromPeer = false) {
     if (selected != "" && selected2 != "") {
         console.log("switching");
         let temp = getUnitT(selected);
@@ -95,7 +95,8 @@ function switchPlaces() {
         selected2.classList.remove("selected2");
         unshowMoveable(lastSelected);
 
-        endTurn(selected, selected2);
+        if (!fromPeer)
+            endTurn(selected, selected2);
 
         selected = "";
         selected2 = "";
@@ -103,7 +104,7 @@ function switchPlaces() {
     }
 }
 
-function movePairs(targetS1, targetS2, targetToLocation) {
+function movePairs(targetS1, targetS2, targetToLocation, fromPeer = false) {
     let ox1 = getTdPos(targetS1).x;
     let oy1 = getTdPos(targetS1).y;
     let ox2 = getTdPos(targetS2).x;
@@ -126,7 +127,8 @@ function movePairs(targetS1, targetS2, targetToLocation) {
     updateLand(ox1 + relX, oy1 + relY);
     updateLand(ox2 + relX, oy2 + relY);
 
-    endTurn(boardTable.rows[oy1 + relY].cells[ox1 + relX], boardTable.rows[oy2 + relY].cells[ox2 + relX]);
+    if (!fromPeer)
+        endTurn(boardTable.rows[oy1 + relY].cells[ox1 + relX], boardTable.rows[oy2 + relY].cells[ox2 + relX]);
 }
 
 function endTurn(selected1, selected2) {
@@ -135,6 +137,15 @@ function endTurn(selected1, selected2) {
     //      disableBoard = true
     //      send info    
     checkVictory(selected1, selected2);
+}
+
+function enableMulti() {
+    //var myWorker = new Worker('multiplayerWorker.js');
+    var peer = new Peer();
+    console.log(peer);
+    peer.on('open', function (id) {
+        console.log('My peer ID is: ' + id);
+    });
 }
 
 function insert(c) {
