@@ -96,3 +96,8 @@ function tempHover(bool) {
         }
     }
 }
+
+function copyLink() {
+    let str = window.location.href + "#" + peer.id;
+    navigator.clipboard.writeText(str);
+}

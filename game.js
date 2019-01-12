@@ -11,17 +11,12 @@ var disableBoard = false;
 
 function tableClicked(e) {
     console.log(getTdPos(e.target));
-    console.log(selected);
-    console.log(lastSelected);
-    console.log(selected2);
+    //console.log(selected);
+    //console.log(lastSelected);
+    //console.log(selected2);
+    console.log(e.target)
 
     if (e.target.tagName != "TD" || disableBoard) {
-        return;
-    }
-    if (selected == "insert") {
-        setUnitE(e, insertQ);
-        updateLand(getTdPos(e.target).x, getTdPos(e.target).y);
-        selected = "";
         return;
     }
     if (selected != "" && selected2 != "") { //3rd blick
@@ -82,7 +77,11 @@ function tableClicked(e) {
     }
 }
 
-function switchPlaces(fromPeer = false) {
+function switchPlaces(Pselected = "", Pselected2 = "", fromPeer = false) {
+    if (Pselected != "") {
+        selected = boardTable.rows[Pselected.y].cells[Pselected.x]
+        selected2 = boardTable.rows[Pselected2.y].cells[Pselected2.x];
+    }
     if (selected != "" && selected2 != "") {
         console.log("switching");
         let temp = getUnitT(selected);
@@ -93,10 +92,19 @@ function switchPlaces(fromPeer = false) {
 
         selected.classList.remove("selected");
         selected2.classList.remove("selected2");
-        unshowMoveable(lastSelected);
+        unshowMoveable(selected);
 
-        if (!fromPeer)
+        if (!fromPeer) {
             endTurn(selected, selected2);
+            if (connection != null) {
+                connection.send({
+                    func: "switchPlaces",
+                    p1: getTdPos(selected),
+                    p2: getTdPos(selected2),
+                    p3: true
+                })
+            }
+        }
 
         selected = "";
         selected2 = "";
@@ -105,12 +113,25 @@ function switchPlaces(fromPeer = false) {
 }
 
 function movePairs(targetS1, targetS2, targetToLocation, fromPeer = false) {
-    let ox1 = getTdPos(targetS1).x;
-    let oy1 = getTdPos(targetS1).y;
-    let ox2 = getTdPos(targetS2).x;
-    let oy2 = getTdPos(targetS2).y;
-    let tlx = getTdPos(targetToLocation).x;
-    let tly = getTdPos(targetToLocation).y;
+    if (fromPeer) {
+        var ox1 = (targetS1).x;
+        var oy1 = (targetS1).y;
+        var ox2 = (targetS2).x;
+        var oy2 = (targetS2).y;
+        var tlx = (targetToLocation).x;
+        var tly = (targetToLocation).y;
+        var targetS1 = boardTable.rows[targetS1.y].cells[targetS1.x];
+        var targetS2 = boardTable.rows[targetS2.y].cells[targetS2.x];
+        var targetToLocation = boardTable.rows[targetToLocation.y].cells[targetToLocation.x];
+    } else {
+        var ox1 = getTdPos(targetS1).x;
+        var oy1 = getTdPos(targetS1).y;
+        var ox2 = getTdPos(targetS2).x;
+        var oy2 = getTdPos(targetS2).y;
+        var tlx = getTdPos(targetToLocation).x;
+        var tly = getTdPos(targetToLocation).y;
+    }
+
     let relX = tlx - ox1;
     let relY = tly - oy1;
 
@@ -127,56 +148,25 @@ function movePairs(targetS1, targetS2, targetToLocation, fromPeer = false) {
     updateLand(ox1 + relX, oy1 + relY);
     updateLand(ox2 + relX, oy2 + relY);
 
-    if (!fromPeer)
+    if (!fromPeer) {
         endTurn(boardTable.rows[oy1 + relY].cells[ox1 + relX], boardTable.rows[oy2 + relY].cells[ox2 + relX]);
+        if (connection != null) {
+            connection.send({
+                func: "movePairs",
+                p1: getTdPos(targetS1),
+                p2: getTdPos(targetS2),
+                p3: getTdPos(targetToLocation),
+                p4: true
+            })
+        }
+    }
 }
 
 function endTurn(selected1, selected2) {
-    // if multiplayer
-    //      tempHover(false)
-    //      disableBoard = true
-    //      send info    
-    checkVictory(selected1, selected2);
-}
-
-function enableMulti() {
-    //var myWorker = new Worker('multiplayerWorker.js');
-    var peer = new Peer(null, {
-        host: '0.peerjs.com',
-        port: "",
-        secure: true
-    })
-    console.log(peer);
-    peer.on('open', function (id) {
-        console.log('My peer ID is: ' + id);
-    });
-}
-
-function insert(c) {
-    switch (c) {
-        case '~':
-            selected = "insert"
-            insertQ = new Unit(1);
-            break;
-        case '^':
-            selected = "insert"
-            insertQ = new Soldier(1);
-            break;
-        case '*':
-            selected = "insert"
-            insertQ = new Ace(1);
-            break;
-        case 'J':
-            selected = "insert"
-            insertQ = new Jumper(1);
-            break;
-        case 'S':
-            selected = "insert"
-            insertQ = new Spy(1);
-            break;
-        case 'U':
-            selected = "insert"
-            insertQ = new Magnet(1);
-            break;
+    if (connection != null) {
+        tempHover(false);
+        disableBoard = true;
+        document.getElementById("teamEmoji").classList.remove("myTurn");
     }
+    checkVictory(selected1, selected2);
 }

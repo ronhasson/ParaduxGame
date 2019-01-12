@@ -29,7 +29,12 @@ function setUnitT(t, unit) {
     setUnit(getTdPos(t).x, getTdPos(t).y, unit);
 }
 
-function drawBoard() {
+function drawBoard(fromPeer = false) {
+    if (!fromPeer && connection != null) {
+        connection.send({
+            func: "new"
+        })
+    }
     console.log("drawing board");
     board = new Board(7);
     boardDiv.innerHTML = "";

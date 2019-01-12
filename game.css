@@ -234,6 +234,10 @@ h2 {
     height: 2em;
 }
 
+#linkBtn {
+    font-size: 1.38em !important;
+}
+
 @keyframes colorRotate {
     from {
         border-color: rgb(255, 0, 0);
@@ -267,4 +271,18 @@ h2 {
 .winningBall {
     animation: colorRotate 6s linear 0s infinite;
     border: 0.7em solid;
+}
+
+@keyframes myTurnAnim {
+    from {
+        box-shadow: 0em 0em 0em #ffb400 inset;
+    }
+
+    to {
+        box-shadow: 0em -1.5em 1.1em #ffb400 inset;
+    }
+}
+
+.myTurn {
+    animation: myTurnAnim 2s ease 0s infinite alternate;
 }

@@ -47,14 +47,17 @@
                 </div>
             </div>
             <div class="dropdown">
-                <input type="button" value="@" onclick="multiplayerDropDown()" class="dropbtn">
+                <input type="button" id="multSettBtn" value="@" onclick="multiplayerDropDown()" class="dropbtn">
                 <div id="myDropdown2" class="dropdown-content">
-                    <font id="fontText">Enable multiplayer</font>
+                    <font id="fontTextMul">Enable multiplayer</font>
                     <input type="button" value="@" id="eMultiBtn" onclick="enableMulti()" style="margin-right: 0.3em;">
                     <br>
-                    <font id="fontText">Your ID: </font>
+                    <font id="fontTextID">ID: </font>
+                    <br>
+                    <input type="button" id="linkBtn" value="Copy link to join" onclick="copyLink()" disabled>
                 </div>
             </div>
+            <font id="teamEmoji" class="dropdown" style="font-size: 160%;border-radius: 1em;"></font>
         </div>
         <div id="gameview">
             <div id="boardDiv" class="canHover"></div>
@@ -71,5 +74,7 @@
 <script src="peer.js"></script>
 
 <script rel="preload" src="game.js"></script>
+
+<script src="multiplayer.js"></script>
 
 </html>
