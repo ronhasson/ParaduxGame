@@ -1,4 +1,5 @@
 changeStyle(localStorage.getItem('style'));
+changeHover(localStorage.getItem('hover'));
 
 function settingsDropDown() {
     document.getElementById("myDropdown").classList.toggle("show");
@@ -70,15 +71,28 @@ function changeStyle(name) {
     }
 }
 
-function changeHover() {
+function changeHover(startAs = undefined) {
     let btn = document.getElementById("hoverBtn");
     let elem = document.getElementById("boardDiv");
-    if (btn.value == "Disable") {
+    if (startAs != undefined) { // when u refresh the page
+        //console.log("setting hover as " + startAs)
+        if (startAs == "true") {
+            btn.value = "Disable";
+            elem.classList.add("canHover");
+        } else if (startAs == "false") {
+            btn.value = "Enable";
+            elem.classList.remove("canHover");
+        }
+        return;
+    }
+    if (btn.value == "Disable") { //normal button press
         btn.value = "Enable";
-        elem.classList.remove("canHover");
+        elem.classList.remove("canHover"); //disalbe
+        localStorage.setItem('hover', false);
     } else if (btn.value == "Enable") {
         btn.value = "Disable";
-        elem.classList.add("canHover");
+        elem.classList.add("canHover"); //enable
+        localStorage.setItem('hover', true);
     }
 }
 

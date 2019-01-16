@@ -20,9 +20,6 @@ if (window.location.hash != "") {
 function enableMulti() {
     //var myWorker = new Worker('multiplayerWorker.js');
 
-
-    // TODO - Check if multi is already enabled, disable it and cut connection
-
     peer = new Peer(null, {
         host: '0.peerjs.com',
         port: "",
@@ -67,6 +64,7 @@ function disableMulti() {
     //close connection
     //close peer
     //style change
+    //remove hash
     //???
 }
 
