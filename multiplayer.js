@@ -31,7 +31,7 @@ function enableMulti() {
         console.log('My peer ID is: ' + id);
         multSettBtn.style.color = "purple";
         enbMultiBtn.value = "X";
-        enbMultiBtn.onclick = "disableMulti()";
+        enbMultiBtn.setAttribute('onclick', 'disableMulti();');
         multiText.innerText = "Disable multiplayer";
         MultiIdText.innerHTML = "ID: " + id;
         linkBtn.disabled = false;
@@ -39,13 +39,25 @@ function enableMulti() {
 
     peer.on('connection', function (conn) {
         if (connection != null) { //redject other ppl
-            conn.close()
+            peer.disconnect(); //for some reason, the code below doesnt work at all. this is a temp workaround (it thinks its connected all the time and doesnt send anything)
+            let connID = conn.peer;
+            console.log("another guy tries to connect");
+            console.log(conn);
+            setTimeout(peer.connections[connID][0].send({
+                func: "alert",
+                p1: "Game already have 2 players inside"
+            }), 500);
+            conn.close();
             return;
         }
         emojiText.innerText = t2;
         emojiText.classList.add("myTurn");
         imTeam = 2;
         connectionLogic(conn);
+    });
+
+    peer.on('error', function (err) {
+        console.error(err);
     });
 }
 
@@ -61,10 +73,27 @@ function connectTo(hisID) {
 }
 
 function disableMulti() {
+    console.log("disable multi")
     //close connection
+    if (connection != null) {
+        connection.close();
+        connection = null;
+    }
     //close peer
+    peer.destroy();
+    peer = null;
     //style change
+    multSettBtn.style.color = "black";
+    enbMultiBtn.value = "@";
+    enbMultiBtn.setAttribute('onclick', 'enableMulti();');
+    multiText.innerText = "Enable multiplayer";
+    MultiIdText.innerHTML = "ID: ";
+    linkBtn.disabled = true;
+    emojiText.innerText = "";
+    emojiText.classList.remove("myTurn");
     //remove hash
+    window.location.hash = ""
+    disableBoard = false;
     //???
 }
 
@@ -92,6 +121,9 @@ function connectionLogic(conn) {
                 case "new":
                     drawBoard(true);
                     break;
+                case "alert":
+                    alert(data.p1);
+                    break;
             }
 
             emojiText.classList.add("myTurn");
@@ -100,5 +132,11 @@ function connectionLogic(conn) {
         // Send messages
         conn.send('Hello!');
     });
-    conn.on('close', disableMulti());
+    conn.on('close', function () {
+        disableMulti()
+        console.info("Connection closed!")
+    });
+    conn.on('error', function (err) {
+        console.error(err);
+    });
 }

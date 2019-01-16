@@ -10,11 +10,11 @@ var insertQ = "";
 var disableBoard = false;
 
 function tableClicked(e) {
-    console.log(getTdPos(e.target));
+    //console.log(getTdPos(e.target));
     //console.log(selected);
     //console.log(lastSelected);
     //console.log(selected2);
-    console.log(e.target)
+    //console.log(e.target)
 
     if (e.target.tagName != "TD" || disableBoard) {
         return;
@@ -43,7 +43,7 @@ function tableClicked(e) {
                 selected = lastSelected;
                 selected2 = e.target;
                 boardTable.rows[getTdPos(selected2).y].cells[getTdPos(selected2).x].classList.add("selected2");
-                console.log("paired!")
+                //console.log("paired!")
                 unshowPairs(lastSelected);
                 showMoveable(selected, selected2);
             } else {
@@ -83,7 +83,7 @@ function switchPlaces(Pselected = "", Pselected2 = "", fromPeer = false) {
         selected2 = boardTable.rows[Pselected2.y].cells[Pselected2.x];
     }
     if (selected != "" && selected2 != "") {
-        console.log("switching");
+        //console.log("switching");
         let temp = getUnitT(selected);
         setUnitT(selected, getUnitT(selected2));
         setUnitT(selected2, temp);

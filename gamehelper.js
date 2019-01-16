@@ -327,7 +327,7 @@ function check4(target, dir) {
         }
 
     }
-    console.log("team: " + color + "; in a row: " + count);
+    //console.log("team: " + color + "; in a row: " + count);
     return (count >= 4) ? true : false;
 }
 
