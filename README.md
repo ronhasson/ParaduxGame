@@ -21,5 +21,5 @@ Have fun!
 - [x] base game
 - [x] improve the ui
 - [x] win condition and announce the winner
-- [ ] p2p multiplyer
-- [ ] matchmaking?
+- [x] p2p multiplyer
+- [ ] matchmaking?(requires a custom signaling server, not sure if i will do it)
