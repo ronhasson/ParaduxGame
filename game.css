@@ -1,7 +1,7 @@
 body {
     background-color: #f3f3f3;
     margin: 0;
-    background-image: url(DefaultBG.jpg);
+    background-image: url(images/DefaultBG.jpg);
     background-repeat: repeat;
     user-select: none;
     -moz-user-select: none;
@@ -133,6 +133,7 @@ td.moveable {
     height: 3.5em;
     background-color: #007dea;
     font-size: 100%;
+    box-shadow: 0px 5px 40px 6px black;
 }
 
 #header input {

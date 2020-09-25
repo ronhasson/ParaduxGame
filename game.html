@@ -21,52 +21,52 @@
 <body style="font-size: 100%;">
     <div id="all">
         <div id="header">
-            <font style="vertical-align: middle; font-size: 3em;">Paradux</font>
+            <span style="vertical-align: middle; font-size: 3em;">Paradux</span>
             <input type="button" value="New" onclick="drawBoard()">
             <input type="button" value="Switch" class="switchBtn" onclick="switchPlaces()">
             <div class="dropdown">
                 <input type="button" value="Settings" onclick="settingsDropDown()" class="dropbtn">
                 <div id="myDropdown" class="dropdown-content">
-                    <font id="fontText">Size: 100%</font>
+                    <span id="fontText">Size: 100%</span>
                     <input type="button" value="-" id="downSize" onclick="changeSize(-10)">
                     <input type="button" value="+" id="upSize" onclick="changeSize(10)">
                     <br>
-                    <font>Hover effect</font>
+                    <span>Hover effect</span>
                     <input type="button" value="Disable" id="hoverBtn" onclick="changeHover()">
                     <br>
-                    <font>Styles:</font>
+                    <span>Styles:</span>
                     <br>
                     <button onclick="changeStyle('def')">
                         <img src="DefaultBG.jpg">
-                        <font>Default</font>
+                        <span>Default</span>
                     </button>
                     <button onclick="changeStyle('sand')">
                         <img src="sand.jpg">
-                        <font>Sand</font>
+                        <span>Sand</span>
                     </button>
                     <br>
                     <button onclick="changeStyle('black')">
                         <img src="black.jpg">
-                        <font>Shadow</font>
+                        <span>Shadow</span>
                     </button>
                     <button onclick="changeStyle('blue')">
                         <img src="blue1.jpg">
-                        <font>Blue</font>
+                        <span>Blue</span>
                     </button>
                 </div>
             </div>
             <div class="dropdown">
                 <input type="button" id="multSettBtn" value="@" onclick="multiplayerDropDown()" class="dropbtn">
                 <div id="myDropdown2" class="dropdown-content">
-                    <font id="fontTextMul">Enable multiplayer</font>
+                    <span id="fontTextMul">Enable multiplayer</span>
                     <input type="button" value="@" id="eMultiBtn" onclick="enableMulti()" style="margin-right: 0.3em;">
                     <br>
-                    <font id="fontTextID">ID: </font>
+                    <span id="fontTextID">ID: </span>
                     <br>
                     <input type="button" id="linkBtn" value="Copy link to join" onclick="copyLink()" disabled>
                 </div>
             </div>
-            <font id="teamEmoji" class="dropdown" style="font-size: 160%;border-radius: 1em;"></font>
+            <span id="teamEmoji" class="dropdown" style="font-size: 160%;border-radius: 1em;"></span>
         </div>
         <div id="gameview">
             <div id="boardDiv" class="canHover"></div>
