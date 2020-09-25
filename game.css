@@ -286,3 +286,33 @@ h2 {
 .myTurn {
     animation: myTurnAnim 2s ease 0s infinite alternate;
 }
+
+@font-face {
+    font-family: 'NovaFlat';
+    src: url('fonts/NovaFlat-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'GermaniaOne';
+    src: url('fonts/GermaniaOne-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Cairo';
+    src: url('fonts/Cairo-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Cairo Semi';
+    src: url('fonts/Cairo-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Cairo Bold';
+    src: url('fonts/Cairo-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Cairo Black';
+    src: url('fonts/Cairo-Black.ttf') format('truetype');
+}
