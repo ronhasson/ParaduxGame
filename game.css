@@ -1,3 +1,7 @@
+html {
+    height: 100%;
+}
+
 body {
     background-color: #f3f3f3;
     margin: 0;
@@ -6,17 +10,19 @@ body {
     user-select: none;
     -moz-user-select: none;
     /*overflow: hidden;*/
+    font-family: "NovaFlat";
+    height: 100%;
 }
 
 #boardDiv {
     display: flex;
     width: 100%;
-    height: 88vh;
+    height: 100%;
 }
 
 table {
     display: table-header-group;
-    margin: auto auto auto;
+    margin: auto;
     font-size: 1.5em;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -124,28 +130,36 @@ td.moveable {
 }
 
 #all {
-    display: table;
+    display: flex;
     width: 100%;
+    flex-direction: column;
+    height: 100%;
 }
 
 #header {
-    display: table-caption;
+    display: flex;
     height: 3.5em;
     background-color: #007dea;
     font-size: 100%;
     box-shadow: 0px 5px 40px 6px black;
+    flex-basis: content;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 }
 
-#header input {
+#header input,
+button {
     vertical-align: middle;
-    font-size: 2.3em;
+    font-size: 1.3em;
     margin: auto;
     cursor: pointer;
-    font-family: monospace;
+    font-family: "Cairo";
 }
 
 #gameview {
-    display: table-cell;
+    display: block;
+    height: 100%;
 }
 
 .sidebar {
@@ -172,11 +186,46 @@ h2 {
 }
 
 .switchBtn {
-    position: absolute;
-    left: 46vw;
-    top: 7px;
-    height: 8vh;
-    right: 46vw;
+    height: 6.5rem;
+    border-end-end-radius: 40px;
+    border-end-start-radius: 40px;
+    border: 0.7em ridge var(--color, #aa8659);
+    background-color: var(--color, #bda27a);
+    border-width: 0.6em !important;
+}
+
+.switchBtn img {
+    height: 1.7rem;
+    vertical-align: middle;
+}
+
+@media (orientation: landscape) {
+    .switchBtn {
+        position: fixed;
+        top: 47.6%;
+        transform: rotate(270deg);
+    }
+
+}
+
+@media (orientation: portrait) {
+    .switchBtn {
+        position: relative;
+        /*left: 42.6%;
+        top: 3.5rem;*/
+    }
+
+    #gameview {
+        margin-bottom: 6.5rem;
+    }
+}
+
+#title {
+    vertical-align: middle;
+    font-size: 3em;
+    font-family: NovaFlat;
+    flex-grow: 1;
+    text-align: center;
 }
 
 .dropbtn {}

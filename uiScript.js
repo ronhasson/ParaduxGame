@@ -47,36 +47,50 @@ function changeStyle(name) {
     if (name != "") {
         localStorage.setItem('style', name);
     }
+    let tColor;
     switch (name) {
         case "def":
+            tColor = "";
             if (document.getElementById("boardDiv").childNodes.length != 0)
                 document.getElementById("boardDiv").childNodes[0].style = "";
             document.body.style.backgroundImage = "url(images/DefaultBG.jpg)";
+            document.getElementById("all").style = "";
+            document.getElementById("switchBtn").style = "";
             break;
         case "sand":
+            tColor = "rgba(92, 152, 56, 0.6)";
             if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle("rgba(92, 152, 56, 0.6)");
+                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/sand.jpg)";
+            document.getElementById("all").style = "--color: " + tColor;
+            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
         case "black":
+            tColor = "#5d6a78b3";
             if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle("#5d6a78b3");
+                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/black.jpg)";
+            document.getElementById("all").style = "--color: " + tColor;
+            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
         case "blue":
+            tColor = "#bf607e99";
             if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle("#bf607e99");
+                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/blue1.jpg)";
+            document.getElementById("all").style = "--color: " + tColor;
+            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
         case "cinder":
+            tColor = "rgb(180, 50, 50)";
             if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle("rgb(180, 50, 50)");
+                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/black.jpg)";
+            document.getElementById("all").style = "--color: " + tColor;
+            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
         case "egypt":
-            if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle("rgb(180, 50, 50)");
-            document.body.style.backgroundImage = "url(images/black.jpg)";
+
             break;
     }
 }

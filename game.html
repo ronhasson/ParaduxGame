@@ -10,64 +10,73 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-148912183-1"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+        window.dataLayer = window.dataLayer || [];
 
-      gtag('config', 'UA-148912183-1');
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-148912183-1');
     </script>
 </head>
 
 <body style="font-size: 100%;">
     <div id="all">
         <div id="header">
-            <span style="vertical-align: middle; font-size: 3em;">Paradux</span>
-            <input type="button" value="New" onclick="drawBoard()">
-            <input type="button" value="Switch" class="switchBtn" onclick="switchPlaces()">
-            <div class="dropdown">
-                <input type="button" value="Settings" onclick="settingsDropDown()" class="dropbtn">
-                <div id="myDropdown" class="dropdown-content">
-                    <span id="fontText">Size: 100%</span>
-                    <input type="button" value="-" id="downSize" onclick="changeSize(-10)">
-                    <input type="button" value="+" id="upSize" onclick="changeSize(10)">
-                    <br>
-                    <span>Hover effect</span>
-                    <input type="button" value="Disable" id="hoverBtn" onclick="changeHover()">
-                    <br>
-                    <span>Styles:</span>
-                    <br>
-                    <button onclick="changeStyle('def')">
-                        <img src="DefaultBG.jpg">
-                        <span>Default</span>
-                    </button>
-                    <button onclick="changeStyle('sand')">
-                        <img src="sand.jpg">
-                        <span>Sand</span>
-                    </button>
-                    <br>
-                    <button onclick="changeStyle('black')">
-                        <img src="black.jpg">
-                        <span>Shadow</span>
-                    </button>
-                    <button onclick="changeStyle('blue')">
-                        <img src="blue1.jpg">
-                        <span>Blue</span>
-                    </button>
-                </div>
+            <div style="flex-grow: 5;width: 20vw;">
+                <input type="button" value="New" onclick="drawBoard()">
             </div>
-            <div class="dropdown">
-                <input type="button" id="multSettBtn" value="@" onclick="multiplayerDropDown()" class="dropbtn">
-                <div id="myDropdown2" class="dropdown-content">
-                    <span id="fontTextMul">Enable multiplayer</span>
-                    <input type="button" value="@" id="eMultiBtn" onclick="enableMulti()" style="margin-right: 0.3em;">
-                    <br>
-                    <span id="fontTextID">ID: </span>
-                    <br>
-                    <input type="button" id="linkBtn" value="Copy link to join" onclick="copyLink()" disabled>
+            <span id="title">Paradux</span>
+            <div style="flex-grow: 5;width: 20vw;">
+                <div class="dropdown">
+                    <input type="button" value="Settings" onclick="settingsDropDown()" class="dropbtn">
+                    <div id="myDropdown" class="dropdown-content">
+                        <span id="fontText">Size: 100%</span>
+                        <input type="button" value="-" id="downSize" onclick="changeSize(-10)">
+                        <input type="button" value="+" id="upSize" onclick="changeSize(10)">
+                        <br>
+                        <span>Hover effect</span>
+                        <input type="button" value="Disable" id="hoverBtn" onclick="changeHover()">
+                        <br>
+                        <span>Styles:</span>
+                        <br>
+                        <button onclick="changeStyle('def')">
+                            <img src="DefaultBG.jpg">
+                            <span>Default</span>
+                        </button>
+                        <button onclick="changeStyle('sand')">
+                            <img src="sand.jpg">
+                            <span>Sand</span>
+                        </button>
+                        <br>
+                        <button onclick="changeStyle('black')">
+                            <img src="black.jpg">
+                            <span>Shadow</span>
+                        </button>
+                        <button onclick="changeStyle('blue')">
+                            <img src="blue1.jpg">
+                            <span>Blue</span>
+                        </button>
+                    </div>
                 </div>
+                <div class="dropdown">
+                    <input type="button" id="multSettBtn" value="@" onclick="multiplayerDropDown()" class="dropbtn">
+                    <div id="myDropdown2" class="dropdown-content">
+                        <span id="fontTextMul">Enable multiplayer</span>
+                        <input type="button" value="@" id="eMultiBtn" onclick="enableMulti()"
+                            style="margin-right: 0.3em;">
+                        <br>
+                        <span id="fontTextID">ID: </span>
+                        <br>
+                        <input type="button" id="linkBtn" value="Copy link to join" onclick="copyLink()" disabled>
+                    </div>
+                </div>
+                <span id="teamEmoji" class="dropdown" style="font-size: 160%;border-radius: 1em;"></span>
             </div>
-            <span id="teamEmoji" class="dropdown" style="font-size: 160%;border-radius: 1em;"></span>
         </div>
+        <button id="switchBtn" class="switchBtn" onclick="switchPlaces()"><span>⚪<img src="images/switch.svg"
+                    alt="Switch">⚫<br>Switch</span></button>
         <div id="gameview">
             <div id="boardDiv" class="canHover"></div>
         </div>
