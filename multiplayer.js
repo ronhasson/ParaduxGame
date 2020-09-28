@@ -14,7 +14,7 @@ var imTeam;
 
 if (window.location.hash != "") {
     enableMulti();
-    connectTo(location.hash.substr(1));
+    //connectTo(location.hash.substr(1));
 }
 
 function enableMulti() {
@@ -22,7 +22,6 @@ function enableMulti() {
 
     peer = new Peer(null, {
         host: '0.peerjs.com',
-        port: "",
         secure: true
     })
     console.log(peer);
@@ -35,10 +34,14 @@ function enableMulti() {
         multiText.innerText = "Disable multiplayer";
         MultiIdText.innerHTML = "ID: " + id;
         linkBtn.disabled = false;
+        if (window.location.hash != "") {
+            connectTo(location.hash.substr(location.hash.lastIndexOf("#") + 1));
+        }
     });
 
     peer.on('connection', function (conn) {
         if (connection != null) { //redject other ppl
+            console.info("game is full - another guy tries to connect");
             peer.disconnect(); //for some reason, the code below doesnt work at all. this is a temp workaround (it thinks its connected all the time and doesnt send anything)
             let connID = conn.peer;
             console.log("another guy tries to connect");
