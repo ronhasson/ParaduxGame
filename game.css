@@ -20,7 +20,7 @@ body {
     height: 100%;
 }
 
-table {
+.gameTable table {
     display: table-header-group;
     margin: auto;
     font-size: 1.5em;
@@ -45,12 +45,12 @@ table {
     border: 1em ridge #aa8659;
 }
 
-tr {
+.gameTable table tr {
     display: flex;
     justify-content: center;
 }
 
-td {
+.gameTable table tr td {
     width: 4em;
     height: 4em;
     text-align: center;
@@ -67,16 +67,16 @@ td {
 }
 
 td.selected {
-    border-color: rgba(255, 166, 0, 1);
+    border-color: rgba(255, 166, 0, 1) !important;
     border-width: 0.7em;
     transition: 0.4s;
 }
 
 td.selected2 {
-    border-color: rgba(255, 166, 0, 1);
+    border-color: rgba(255, 166, 0, 1) !important;
     border-width: 0.7em;
     transition: 0.4s;
-    border-style: double;
+    border-style: double !important;
 }
 
 .canHover td:hover {
@@ -111,13 +111,13 @@ td.hidden {
 
 td.friendly {
     color: rgb(2, 2, 170);
-    box-shadow: inset -1em -1em 2em 0px #d7d7d7;
+    box-shadow: inset -1em -1em 2em 0px #d7d7d7 !important;
     background-color: white;
 }
 
 td.enemy {
     color: rgb(170, 2, 2);
-    box-shadow: inset -1em -1em 1.5em 0px #000;
+    box-shadow: inset -1em -1em 1.5em 0px #000 !important;
     background-color: #1d1d1de6;
 }
 
@@ -266,8 +266,8 @@ h2 {
 }
 
 .dropdown-content button {
-    margin: 0.2em;
-    width: 5.5em;
+    /*margin: 1%;
+    /*width: 45%;*/
     font-size: inherit;
 }
 
@@ -365,4 +365,38 @@ h2 {
 @font-face {
     font-family: 'Cairo Black';
     src: url('fonts/Cairo-Black.ttf') format('truetype');
+}
+
+.dropdown-content table {
+    width: 97%;
+    margin: 0 auto;
+}
+
+.miniTable table {
+    font-size: 44%;
+    user-select: none;
+    width: auto;
+    display: table;
+    margin: 1.5em;
+
+    border: 1em ridge var(--color);
+    background: -webkit-linear-gradient(left, rgba(233, 223, 196, 1) 0%, rgba(233, 223, 196, 1) 1%, rgba(237, 227, 200, 1) 2%, rgba(237, 227, 200, 1) 24%, rgba(235, 221, 195, 1) 25%, rgba(233, 223, 196, 1) 48%, rgba(235, 221, 195, 1) 49%, rgba(230, 216, 189, 1) 52%, rgba(230, 216, 189, 1) 53%, rgba(233, 219, 192, 1) 54%, rgba(230, 216, 189, 1) 55%, rgba(230, 216, 189, 1) 56%, rgba(233, 219, 192, 1) 57%, rgba(230, 216, 189, 1) 58%, rgba(230, 216, 189, 1) 73%, rgba(233, 219, 192, 1) 74%, rgba(233, 219, 192, 1) 98%, rgba(235, 221, 195, 1) 100%),
+        var(--color);
+    background-repeat: repeat,
+        repeat;
+    background-size: auto auto,
+        auto auto;
+    background-repeat: repeat;
+    background-size: auto auto;
+    background-size: 63px;
+    background-blend-mode: multiply;
+    border: 1em ridge var(--color);
+}
+
+.stylespickerDiv {
+    height: 18em;
+    overflow: auto;
+    display: grid;
+    grid-template-columns: 50% 50%;
+    gap: 1em 0em;
 }

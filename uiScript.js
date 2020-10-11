@@ -1,3 +1,7 @@
+if(devicePixelRatio > 1.05){
+    document.body.parentElement.style.fontSize = "115%";
+}
+
 changeStyle(localStorage.getItem('style'));
 changeHover(localStorage.getItem('hover'));
 
@@ -10,7 +14,8 @@ function multiplayerDropDown() {
 }
 // Close the dropdown if the user clicks outside of it
 window.onclick = function (event) {
-    if (!event.target.matches('.dropbtn') && !event.target.parentNode.matches('.dropdown-content')) {
+    //console.log(event.target);
+    if (event.target.matches('#boardDiv') || event.target.matches('.dropdown')) {
         var dropdowns = document.getElementsByClassName("dropdown-content");
         var i;
         for (i = 0; i < dropdowns.length; i++) {
@@ -89,8 +94,61 @@ function changeStyle(name) {
             document.getElementById("all").style = "--color: " + tColor;
             document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
+        case "bluewood":
+            tColor = "rgb(224, 210, 82)";
+            if (document.getElementById("boardDiv").childNodes.length != 0)
+                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
+            document.body.style.backgroundImage = "url(images/bluewood.jpg)";
+            document.getElementById("all").style = "--color: " + tColor;
+            document.getElementById("switchBtn").style = generateStyle(tColor);
+            break;
+        case "grill":
+            tColor = "rgb(151, 82, 115)";
+            if (document.getElementById("boardDiv").childNodes.length != 0)
+                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
+            document.body.style.backgroundImage = "url(images/Coal.jpg)";
+            document.getElementById("all").style = "--color: " + tColor;
+            document.getElementById("switchBtn").style = generateStyle(tColor);
+            break;
+        case "sea":
+            tColor = "rgb(62, 164, 211)";
+            if (document.getElementById("boardDiv").childNodes.length != 0)
+                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
+            document.body.style.backgroundImage = "url(images/sand2.jpg)";
+            document.getElementById("all").style = "--color: " + tColor;
+            document.getElementById("switchBtn").style = generateStyle(tColor);
+            break;
+        case "sofa":
+            tColor = "rgb(221, 191, 147)";
+            if (document.getElementById("boardDiv").childNodes.length != 0)
+                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
+            document.body.style.backgroundImage = "url(images/sofa.jpg)";
+            document.getElementById("all").style = "--color: " + tColor;
+            document.getElementById("switchBtn").style = generateStyle(tColor);
+            break;
         case "egypt":
-
+            tColor = "rgb(209, 196, 121)";
+            if (document.getElementById("boardDiv").childNodes.length != 0)
+                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
+            document.body.style.backgroundImage = "url(images/marble.jpg)";
+            document.getElementById("all").style = "--color: " + tColor;
+            document.getElementById("switchBtn").style = generateStyle(tColor);
+            break;
+        case "street":
+            tColor = "rgb(211, 140, 33)";
+            if (document.getElementById("boardDiv").childNodes.length != 0)
+                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
+            document.body.style.backgroundImage = "url(images/darkMarble.jpg)";
+            document.getElementById("all").style = "--color: " + tColor;
+            document.getElementById("switchBtn").style = generateStyle(tColor);
+            break;
+        case "deck":
+            tColor = "rgb(200, 224, 114)";
+            if (document.getElementById("boardDiv").childNodes.length != 0)
+                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
+            document.body.style.backgroundImage = "url(images/wood.jpg)";
+            document.getElementById("all").style = "--color: " + tColor;
+            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
     }
 }

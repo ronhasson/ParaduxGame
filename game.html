@@ -32,32 +32,199 @@
                 <div class="dropdown">
                     <input type="button" value="Settings" onclick="settingsDropDown()" class="dropbtn">
                     <div id="myDropdown" class="dropdown-content">
-                        <span id="fontText">Size: 100%</span>
-                        <input type="button" value="-" id="downSize" onclick="changeSize(-10)">
-                        <input type="button" value="+" id="upSize" onclick="changeSize(10)">
-                        <br>
-                        <span>Hover effect</span>
-                        <input type="button" value="Disable" id="hoverBtn" onclick="changeHover()">
-                        <br>
-                        <span>Styles:</span>
-                        <br>
-                        <button onclick="changeStyle('def')">
-                            <img src="DefaultBG.jpg">
-                            <span>Default</span>
-                        </button>
-                        <button onclick="changeStyle('sand')">
-                            <img src="sand.jpg">
-                            <span>Sand</span>
-                        </button>
-                        <br>
-                        <button onclick="changeStyle('black')">
-                            <img src="black.jpg">
-                            <span>Shadow</span>
-                        </button>
-                        <button onclick="changeStyle('blue')">
-                            <img src="blue1.jpg">
-                            <span>Blue</span>
-                        </button>
+                        <table>
+                            <tr>
+                                <!--Size-->
+                                <td><span id="fontText">Size: 100%</span></td>
+                                <td style="text-align: center;">
+                                    <input type="button" value="-" id="downSize" onclick="changeSize(-10)">
+                                    <input type="button" value="+" id="upSize" onclick="changeSize(10)">
+                                </td>
+                            </tr>
+                            <tr>
+                                <!--Hover-->
+                                <td><span>Hover effect</span></td>
+                                <td style="text-align: center;">
+                                    <input type="button" value="Disable" id="hoverBtn" onclick="changeHover()">
+                                </td>
+                            </tr>
+                            <th colspan="2" style="padding: 1em 0 0.3em;">
+                                <!--Styles-->
+                                <span>Pick a style:</span>
+                            </th>
+                            <tr>
+                                <td colspan="2" style="--color: #aa865999;width: 19em;">
+                                    <div class="stylespickerDiv">
+                                        <button style="background-image: url(images/DefaultBG.jpg);"
+                                            class="gameTable miniTable" onclick="changeStyle('def')">
+                                            <table>
+                                                <tr>
+                                                    <td class="friendly"></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="enemy"></td>
+                                                </tr>
+                                            </table>
+                                        </button>
+                                        <button
+                                            style="--color:rgba(92, 152, 56, 0.6); background-image: url(images/sand.jpg);"
+                                            class="gameTable miniTable" onclick="changeStyle('sand')">
+                                            <table>
+                                                <tr>
+                                                    <td class="friendly"></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="enemy"></td>
+                                                </tr>
+                                            </table>
+                                        </button>
+                                        <button style="--color:#5d6a78b3; background-image: url(images/black.jpg);"
+                                            class="gameTable miniTable" onclick="changeStyle('black')">
+                                            <table>
+                                                <tr>
+                                                    <td class="friendly"></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="enemy"></td>
+                                                </tr>
+                                            </table>
+                                        </button>
+                                        <button style="--color:#bf607e99; background-image: url(images/blue1.jpg);"
+                                            class="gameTable miniTable" onclick="changeStyle('blue')">
+                                            <table>
+                                                <tr>
+                                                    <td class="friendly"></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="enemy"></td>
+                                                </tr>
+                                            </table>
+                                        </button>
+                                        <button
+                                            style="--color:rgb(180, 50, 50); background-image: url(images/black.jpg);"
+                                            class="gameTable miniTable" onclick="changeStyle('cinder')">
+                                            <table>
+                                                <tr>
+                                                    <td class="friendly"></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="enemy"></td>
+                                                </tr>
+                                            </table>
+                                        </button>
+                                        <button
+                                            style="--color:rgb(224, 210, 82); background-image: url(images/blueWood.jpg);"
+                                            class="gameTable miniTable" onclick="changeStyle('bluewood')">
+                                            <table>
+                                                <tr>
+                                                    <td class="friendly"></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="enemy"></td>
+                                                </tr>
+                                            </table>
+                                        </button>
+                                        <button
+                                            style="--color:rgb(221, 191, 147); background-image: url(images/sofa.jpg);"
+                                            class="gameTable miniTable" onclick="changeStyle('sofa')">
+                                            <table>
+                                                <tr>
+                                                    <td class="friendly"></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="enemy"></td>
+                                                </tr>
+                                            </table>
+                                        </button>
+                                        <button
+                                            style="--color:rgb(211, 140, 33); background-image: url(images/darkMarble.jpg);"
+                                            class="gameTable miniTable" onclick="changeStyle('street')">
+                                            <table>
+                                                <tr>
+                                                    <td class="friendly"></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="enemy"></td>
+                                                </tr>
+                                            </table>
+                                        </button>
+                                        <button
+                                            style="--color:rgb(209, 196, 121); background-image: url(images/marble.jpg);"
+                                            class="gameTable miniTable" onclick="changeStyle('egypt')">
+                                            <table>
+                                                <tr>
+                                                    <td class="friendly"></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="enemy"></td>
+                                                </tr>
+                                            </table>
+                                        </button>
+                                        <button
+                                            style="--color:rgb(200, 224, 114); background-image: url(images/wood.jpg);"
+                                            class="gameTable miniTable" onclick="changeStyle('deck')">
+                                            <table>
+                                                <tr>
+                                                    <td class="friendly"></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="enemy"></td>
+                                                </tr>
+                                            </table>
+                                        </button>
+                                        <button
+                                            style="--color:rgb(151, 82, 115); background-image: url(images/Coal.jpg);"
+                                            class="gameTable miniTable" onclick="changeStyle('grill')">
+                                            <table>
+                                                <tr>
+                                                    <td class="friendly"></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="enemy"></td>
+                                                </tr>
+                                            </table>
+                                        </button>
+                                        <button
+                                            style="--color:rgb(62, 164, 211); background-image: url(images/Sand2.jpg);"
+                                            class="gameTable miniTable" onclick="changeStyle('sea')">
+                                            <table>
+                                                <tr>
+                                                    <td class="friendly"></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="enemy"></td>
+                                                </tr>
+                                            </table>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
                     </div>
                 </div>
                 <div class="dropdown">
@@ -78,7 +245,7 @@
         <button id="switchBtn" class="switchBtn" onclick="switchPlaces()"><span>⚪<img src="images/switch.svg"
                     alt="Switch">⚫<br>Switch</span></button>
         <div id="gameview">
-            <div id="boardDiv" class="canHover"></div>
+            <div id="boardDiv" class="gameTable canHover"></div>
         </div>
 
     </div>
