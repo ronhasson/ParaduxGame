@@ -21,7 +21,9 @@ function enableMulti() {
     //var myWorker = new Worker('multiplayerWorker.js');
 
     peer = new Peer(null, {
-        host: 'https://9000-dd33caff-2c78-4396-a67e-adf0adfe7101.ws-eu01.gitpod.io/',
+        host: '9000-dd33caff-2c78-4396-a67e-adf0adfe7101.ws-eu01.gitpod.io',
+        //path: '/',
+        key: "ron",
         secure: true
     })
     console.log(peer);
