@@ -21,7 +21,7 @@ function enableMulti() {
     //var myWorker = new Worker('multiplayerWorker.js');
 
     peer = new Peer(null, {
-        host: '0.peerjs.com',
+        host: 'https://9000-dd33caff-2c78-4396-a67e-adf0adfe7101.ws-eu01.gitpod.io/',
         secure: true
     })
     console.log(peer);
@@ -61,6 +61,7 @@ function enableMulti() {
 
     peer.on('error', function (err) {
         console.error(err);
+        alert(err.message);
     });
 }
 
@@ -141,5 +142,6 @@ function connectionLogic(conn) {
     });
     conn.on('error', function (err) {
         console.error(err);
+        alert(err.message);
     });
 }

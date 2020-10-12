@@ -230,13 +230,24 @@
                 <div class="dropdown">
                     <input type="button" id="multSettBtn" value="@" onclick="multiplayerDropDown()" class="dropbtn">
                     <div id="myDropdown2" class="dropdown-content">
-                        <span id="fontTextMul">Enable multiplayer</span>
-                        <input type="button" value="@" id="eMultiBtn" onclick="enableMulti()"
-                            style="margin-right: 0.3em;">
-                        <br>
-                        <span id="fontTextID">ID: </span>
-                        <br>
-                        <input type="button" id="linkBtn" value="Copy link to join" onclick="copyLink()" disabled>
+                        <table>
+                            <tr>
+                                <td><span id="fontTextMul">Enable multiplayer</span></td>
+                                <td><input type="button" value="@" id="eMultiBtn" onclick="enableMulti()"
+                                        style="margin-right: 0.3em;"></td>
+                            </tr>
+                            <tr>
+                                <td><span id="fontTextID">ID: </span></td>
+                            </tr>
+                            <tr>
+                                <td><input type="text" disabled></td>
+                            </tr>
+                            <tr>
+                                <td><input type="button" id="linkBtn" value="Copy link to join" onclick="copyLink()"
+                                        disabled></td>
+                            </tr>
+                        </table>
+
                     </div>
                 </div>
                 <span id="teamEmoji" class="dropdown" style="font-size: 160%;border-radius: 1em;"></span>
