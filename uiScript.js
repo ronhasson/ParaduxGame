@@ -98,7 +98,7 @@ function changeStyle(name) {
             tColor = "rgb(224, 210, 82)";
             if (document.getElementById("boardDiv").childNodes.length != 0)
                 document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
-            document.body.style.backgroundImage = "url(images/bluewood.jpg)";
+            document.body.style.backgroundImage = "url(images/blueWood.jpg)";
             document.getElementById("all").style = "--color: " + tColor;
             document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
@@ -114,7 +114,7 @@ function changeStyle(name) {
             tColor = "rgb(62, 164, 211)";
             if (document.getElementById("boardDiv").childNodes.length != 0)
                 document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
-            document.body.style.backgroundImage = "url(images/sand2.jpg)";
+            document.body.style.backgroundImage = "url(images/Sand2.jpg)";
             document.getElementById("all").style = "--color: " + tColor;
             document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
