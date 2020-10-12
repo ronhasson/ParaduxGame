@@ -150,6 +150,14 @@ function changeStyle(name) {
             document.getElementById("all").style = "--color: " + tColor;
             document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
+        case "carpet":
+            tColor = "rgb(169, 121, 209)";
+            if (document.getElementById("boardDiv").childNodes.length != 0)
+                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
+            document.body.style.backgroundImage = "url(images/carpetBlack.jpg)";
+            document.getElementById("all").style = "--color: " + tColor;
+            document.getElementById("switchBtn").style = generateStyle(tColor);
+            break;
     }
 }
 

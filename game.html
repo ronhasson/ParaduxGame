@@ -179,6 +179,20 @@
                                             </table>
                                         </button>
                                         <button
+                                            style="--color:rgb(169, 121, 209); background-image: url(images/carpetBlack.jpg);"
+                                            class="gameTable miniTable" onclick="changeStyle('carpet')">
+                                            <table>
+                                                <tr>
+                                                    <td class="friendly"></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="enemy"></td>
+                                                </tr>
+                                            </table>
+                                        </button>
+                                        <button
                                             style="--color:rgb(200, 224, 114); background-image: url(images/wood.jpg);"
                                             class="gameTable miniTable" onclick="changeStyle('deck')">
                                             <table>
@@ -239,9 +253,9 @@
                             <tr>
                                 <td><span id="fontTextID">ID: </span></td>
                             </tr>
-                            <tr>
+                            <!--tr>
                                 <td><input type="text" disabled></td>
-                            </tr>
+                            </tr!-->
                             <tr>
                                 <td><input type="button" id="linkBtn" value="Copy link to join" onclick="copyLink()"
                                         disabled></td>
