@@ -24,7 +24,7 @@ function enableMulti() {
         host: '80.230.76.33',
         //path: '/',
         key: "ron",
-        secure: true
+        secure: false
     })
     console.log(peer);
 
