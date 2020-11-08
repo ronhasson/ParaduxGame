@@ -21,7 +21,7 @@ function enableMulti() {
     //var myWorker = new Worker('multiplayerWorker.js');
 
     peer = new Peer(null, {
-        host: '80.230.76.33',
+        host: 'peer.ronhasson.cyou',
         //path: '/',
         key: "ron",
         secure: false
