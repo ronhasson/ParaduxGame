@@ -189,6 +189,8 @@ h2 {
     height: 6.5rem;
     border-end-end-radius: 40px;
     border-end-start-radius: 40px;
+    border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;
     border: 0.7em ridge var(--color, #aa8659);
     background-color: var(--color, #bda27a);
     border-width: 0.6em !important;
