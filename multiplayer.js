@@ -24,7 +24,7 @@ function enableMulti() {
         host: 'peer.ronhasson.cyou',
         //path: '/',
         key: "ron",
-        secure: false
+        secure: true
     })
     console.log(peer);
 
