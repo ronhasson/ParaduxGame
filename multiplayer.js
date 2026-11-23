@@ -1,47 +1,80 @@
 var peer = null;
 var connection = null;
 
-let multSettBtn = document.getElementById("multSettBtn");
-let enbMultiBtn = document.getElementById("eMultiBtn");
-let multiText = document.getElementById("fontTextMul");
-let MultiIdText = document.getElementById("fontTextID");
+const multSettBtn = document.getElementById("multSettBtn");
+const onlineAction = document.getElementById("eMultiBtn");
+const onlineStatus = document.getElementById("onlineStatus");
+const onlineInvite = document.getElementById("onlineInvite");
+const inviteURL = document.getElementById("inviteURL");
+const copyStatus = document.getElementById("copyStatus");
 let emojiText = document.getElementById("teamEmoji");
-let linkBtn = document.getElementById("linkBtn");
+
+const onlineActions = {
+    idle: "Start online game",
+    opening: "Cancel",
+    ready: "Close online game",
+    connecting: "Cancel",
+    connected: "Disconnect",
+    error: "Try again"
+};
+
+function showOnlineState(state, message) {
+    onlineStatus.textContent = message;
+    onlineStatus.dataset.state = state;
+    multSettBtn.dataset.onlineState = state;
+    onlineAction.textContent = onlineActions[state];
+    onlineAction.classList.toggle("panel-primary", state === "idle" || state === "error");
+}
+
+function toggleOnline() {
+    if (peer) {
+        disableMulti();
+    } else {
+        enableMulti();
+    }
+}
 
 let t1 = "⚪";
 let t2 = "⚫";
 var imTeam;
 
-if (window.location.hash != "") {
+if (window.location.hash) {
+    toggleDropdown(multSettBtn);
     enableMulti();
-    //connectTo(location.hash.substr(1));
+} else {
+    drawBoard();
 }
 
 function enableMulti() {
-    //var myWorker = new Worker('multiplayerWorker.js');
+    const joinID = window.location.hash.slice(1);
+    showOnlineState("opening", joinID ? "Connecting to your friend…" : "Creating your invite…");
 
-    peer = new Peer(null, {
+    const activePeer = new Peer(null, {
         host: 'peer.ronhasson.cyou',
-        //path: '/',
         key: "ron",
         secure: true
-    })
-    console.log(peer);
+    });
+    peer = activePeer;
 
-    peer.on('open', function (id) {
-        console.log('My peer ID is: ' + id);
-        multSettBtn.style.color = "purple";
-        enbMultiBtn.value = "X";
-        enbMultiBtn.setAttribute('onclick', 'disableMulti();');
-        multiText.innerText = "Disable multiplayer";
-        MultiIdText.innerHTML = "ID: " + id;
-        linkBtn.disabled = false;
-        if (window.location.hash != "") {
-            connectTo(location.hash.substr(location.hash.lastIndexOf("#") + 1));
+    activePeer.on('open', function (id) {
+        if (peer !== activePeer) {
+            return;
         }
+        if (joinID) {
+            connectTo(joinID);
+            return;
+        }
+        const url = new URL(window.location.href);
+        url.hash = id;
+        inviteURL.value = url.href;
+        onlineInvite.hidden = false;
+        showOnlineState("ready", "Invite ready. Waiting for your friend to join.");
     });
 
-    peer.on('connection', function (conn) {
+    activePeer.on('connection', function (conn) {
+        if (peer !== activePeer) {
+            return;
+        }
         if (connection != null) { //redject other ppl
             console.info("game is full - another guy tries to connect");
             peer.disconnect(); //for some reason, the code below doesnt work at all. this is a temp workaround (it thinks its connected all the time and doesnt send anything)
@@ -61,9 +94,11 @@ function enableMulti() {
         connectionLogic(conn);
     });
 
-    peer.on('error', function (err) {
-        console.error(err);
-        alert(err.message);
+    activePeer.on('error', function (err) {
+        if (peer === activePeer) {
+            console.error(err);
+            disableMulti("Couldn’t connect to the multiplayer service.");
+        }
     });
 }
 
@@ -72,44 +107,51 @@ function connectTo(hisID) {
     emojiText.classList.remove("myTurn");
     tempHover(false);
     disableBoard = true;
+    updateBoardControls();
     imTeam = 1;
     connection = peer.connect(hisID);
     console.log("Connecting to: " + hisID);
     connectionLogic(connection);
 }
 
-function disableMulti() {
-    console.log("disable multi")
-    //close connection
-    if (connection != null) {
-        connection.close();
-        connection = null;
-    }
-    //close peer
-    peer.destroy();
+function disableMulti(error = "") {
+    const previousConnection = connection;
+    const previousPeer = peer;
+    connection = null;
     peer = null;
-    //style change
-    multSettBtn.style.color = "black";
-    enbMultiBtn.value = "@";
-    enbMultiBtn.setAttribute('onclick', 'enableMulti();');
-    multiText.innerText = "Enable multiplayer";
-    MultiIdText.innerHTML = "ID: ";
-    linkBtn.disabled = true;
+    previousConnection?.close();
+    previousPeer?.destroy();
+
+    onlineInvite.hidden = true;
+    inviteURL.value = "";
+    copyStatus.textContent = "";
     emojiText.innerText = "";
     emojiText.classList.remove("myTurn");
-    //remove hash
-    window.location.hash = ""
-    disableBoard = false;
-    //???
+    if (!error) {
+        window.location.hash = "";
+    }
+    showOnlineState(error ? "error" : "idle", error || "Start a game and send the invite link to a friend.");
+    disableBoard = Boolean(winningTeam);
+    if (!board) {
+        drawBoard();
+    }
+    updateBoardControls();
 }
 
 function connectionLogic(conn) {
     connection = conn;
+    showOnlineState("connecting", "Connecting to your friend…");
     conn.on('open', function () {
-        multSettBtn.style.color = "green";
+        if (connection !== conn) {
+            return;
+        }
+        showOnlineState("connected", "Your friend is connected.");
         drawBoard();
         // Receive messages
         conn.on('data', function (data) {
+            if (connection !== conn) {
+                return;
+            }
             console.log('Received', data);
 
             tempHover(true);
@@ -133,17 +175,21 @@ function connectionLogic(conn) {
             }
 
             emojiText.classList.add("myTurn");
+            updateBoardControls();
         });
 
         // Send messages
         conn.send('Hello!');
     });
     conn.on('close', function () {
-        disableMulti()
-        console.info("Connection closed!")
+        if (connection === conn) {
+            disableMulti("Your friend disconnected.");
+        }
     });
     conn.on('error', function (err) {
-        console.error(err);
-        alert(err.message);
+        if (connection === conn) {
+            console.error(err);
+            disableMulti("Couldn’t connect to your friend.");
+        }
     });
 }

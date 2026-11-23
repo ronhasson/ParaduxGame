@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Paradux</title>
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="stylesheet" href="game.css">
@@ -21,257 +22,147 @@
     </script>
 </head>
 
-<body style="font-size: 100%;">
+<body>
     <div id="all">
         <div id="header">
-            <div style="flex-grow: 5;width: 20vw;">
-                <input type="button" value="New" onclick="drawBoard()">
+            <div class="header-actions header-start">
+                <button type="button" class="toolbar-button" aria-label="New game" title="New game" onclick="drawBoard()">
+                    <span class="toolbar-icon" aria-hidden="true">↻</span>
+                </button>
+                <span id="gameResult" role="status"></span>
             </div>
-            <span id="title">Paradux</span>
-            <div style="flex-grow: 5;width: 20vw;">
+            <h1 id="title">Paradux</h1>
+            <div class="header-actions header-end">
+                <span id="localTurnMarble" class="turn-marble" role="img" hidden></span>
+                <span id="teamEmoji" class="turn-marble"></span>
                 <div class="dropdown">
-                    <input type="button" value="Settings" onclick="settingsDropDown()" class="dropbtn">
-                    <div id="myDropdown" class="dropdown-content">
-                        <table>
-                            <tr>
-                                <!--Size-->
-                                <td><span id="fontText">Size: 100%</span></td>
-                                <td style="text-align: center;">
-                                    <input type="button" value="-" id="downSize" onclick="changeSize(-10)">
-                                    <input type="button" value="+" id="upSize" onclick="changeSize(10)">
-                                </td>
-                            </tr>
-                            <tr>
-                                <!--Hover-->
-                                <td><span>Hover effect</span></td>
-                                <td style="text-align: center;">
-                                    <input type="button" value="Disable" id="hoverBtn" onclick="changeHover()">
-                                </td>
-                            </tr>
-                            <th colspan="2" style="padding: 1em 0 0.3em;">
-                                <!--Styles-->
-                                <span>Pick a style:</span>
-                            </th>
-                            <tr>
-                                <td colspan="2" style="--color: #aa865999;width: 19em;">
-                                    <div class="stylespickerDiv">
-                                        <button style="background-image: url(images/DefaultBG.jpg);"
-                                            class="gameTable miniTable" onclick="changeStyle('def')">
-                                            <table>
-                                                <tr>
-                                                    <td class="friendly"></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td class="enemy"></td>
-                                                </tr>
-                                            </table>
-                                        </button>
-                                        <button
-                                            style="--color:rgba(92, 152, 56, 0.6); background-image: url(images/sand.jpg);"
-                                            class="gameTable miniTable" onclick="changeStyle('sand')">
-                                            <table>
-                                                <tr>
-                                                    <td class="friendly"></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td class="enemy"></td>
-                                                </tr>
-                                            </table>
-                                        </button>
-                                        <button style="--color:#5d6a78b3; background-image: url(images/black.jpg);"
-                                            class="gameTable miniTable" onclick="changeStyle('black')">
-                                            <table>
-                                                <tr>
-                                                    <td class="friendly"></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td class="enemy"></td>
-                                                </tr>
-                                            </table>
-                                        </button>
-                                        <button style="--color:#bf607e99; background-image: url(images/blue1.jpg);"
-                                            class="gameTable miniTable" onclick="changeStyle('blue')">
-                                            <table>
-                                                <tr>
-                                                    <td class="friendly"></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td class="enemy"></td>
-                                                </tr>
-                                            </table>
-                                        </button>
-                                        <button
-                                            style="--color:rgb(180, 50, 50); background-image: url(images/black.jpg);"
-                                            class="gameTable miniTable" onclick="changeStyle('cinder')">
-                                            <table>
-                                                <tr>
-                                                    <td class="friendly"></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td class="enemy"></td>
-                                                </tr>
-                                            </table>
-                                        </button>
-                                        <button
-                                            style="--color:rgb(224, 210, 82); background-image: url(images/blueWood.jpg);"
-                                            class="gameTable miniTable" onclick="changeStyle('bluewood')">
-                                            <table>
-                                                <tr>
-                                                    <td class="friendly"></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td class="enemy"></td>
-                                                </tr>
-                                            </table>
-                                        </button>
-                                        <button
-                                            style="--color:rgb(221, 191, 147); background-image: url(images/sofa.jpg);"
-                                            class="gameTable miniTable" onclick="changeStyle('sofa')">
-                                            <table>
-                                                <tr>
-                                                    <td class="friendly"></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td class="enemy"></td>
-                                                </tr>
-                                            </table>
-                                        </button>
-                                        <button
-                                            style="--color:rgb(211, 140, 33); background-image: url(images/darkMarble.jpg);"
-                                            class="gameTable miniTable" onclick="changeStyle('street')">
-                                            <table>
-                                                <tr>
-                                                    <td class="friendly"></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td class="enemy"></td>
-                                                </tr>
-                                            </table>
-                                        </button>
-                                        <button
-                                            style="--color:rgb(209, 196, 121); background-image: url(images/marble.jpg);"
-                                            class="gameTable miniTable" onclick="changeStyle('egypt')">
-                                            <table>
-                                                <tr>
-                                                    <td class="friendly"></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td class="enemy"></td>
-                                                </tr>
-                                            </table>
-                                        </button>
-                                        <button
-                                            style="--color:rgb(169, 121, 209); background-image: url(images/carpetBlack.jpg);"
-                                            class="gameTable miniTable" onclick="changeStyle('carpet')">
-                                            <table>
-                                                <tr>
-                                                    <td class="friendly"></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td class="enemy"></td>
-                                                </tr>
-                                            </table>
-                                        </button>
-                                        <button
-                                            style="--color:rgb(200, 224, 114); background-image: url(images/wood.jpg);"
-                                            class="gameTable miniTable" onclick="changeStyle('deck')">
-                                            <table>
-                                                <tr>
-                                                    <td class="friendly"></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td class="enemy"></td>
-                                                </tr>
-                                            </table>
-                                        </button>
-                                        <button
-                                            style="--color:rgb(151, 82, 115); background-image: url(images/Coal.jpg);"
-                                            class="gameTable miniTable" onclick="changeStyle('grill')">
-                                            <table>
-                                                <tr>
-                                                    <td class="friendly"></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td class="enemy"></td>
-                                                </tr>
-                                            </table>
-                                        </button>
-                                        <button
-                                            style="--color:rgb(62, 164, 211); background-image: url(images/Sand2.jpg);"
-                                            class="gameTable miniTable" onclick="changeStyle('sea')">
-                                            <table>
-                                                <tr>
-                                                    <td class="friendly"></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td class="enemy"></td>
-                                                </tr>
-                                            </table>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-
-                    </div>
+                    <button type="button" id="multSettBtn" class="toolbar-button" aria-label="Online" title="Online"
+                        aria-controls="myDropdown2" aria-expanded="false" onclick="toggleDropdown(this)">
+                        <span class="toolbar-icon globe-icon" aria-hidden="true"></span>
+                    </button>
+                    <section id="myDropdown2" class="dropdown-content online-panel" aria-labelledby="onlineTitle">
+                        <div class="panel-heading">
+                            <h2 id="onlineTitle">Online play</h2>
+                            <button type="button" class="panel-close" aria-label="Close Online" onclick="dismissDropdown()">×</button>
+                        </div>
+                        <div class="online-status">
+                            <p id="onlineStatus" data-state="idle" role="status">Start a game and send the invite link to a friend.</p>
+                        </div>
+                        <div id="onlineInvite" class="online-invite" hidden>
+                            <label for="inviteURL">Invite link</label>
+                            <input id="inviteURL" type="url" readonly>
+                            <button type="button" id="linkBtn" class="panel-button panel-primary" onclick="copyLink()">Copy invite link</button>
+                            <p id="copyStatus" role="status"></p>
+                        </div>
+                        <button type="button" id="eMultiBtn" class="panel-button panel-primary" onclick="toggleOnline()">Start online game</button>
+                    </section>
                 </div>
                 <div class="dropdown">
-                    <input type="button" id="multSettBtn" value="@" onclick="multiplayerDropDown()" class="dropbtn">
-                    <div id="myDropdown2" class="dropdown-content">
-                        <table>
-                            <tr>
-                                <td><span id="fontTextMul">Enable multiplayer</span></td>
-                                <td><input type="button" value="@" id="eMultiBtn" onclick="enableMulti()"
-                                        style="margin-right: 0.3em;"></td>
-                            </tr>
-                            <tr>
-                                <td><span id="fontTextID">ID: </span></td>
-                            </tr>
-                            <!--tr>
-                                <td><input type="text" disabled></td>
-                            </tr!-->
-                            <tr>
-                                <td><input type="button" id="linkBtn" value="Copy link to join" onclick="copyLink()"
-                                        disabled></td>
-                            </tr>
-                        </table>
-
-                    </div>
+                    <button type="button" class="toolbar-button" aria-label="Settings" title="Settings"
+                        aria-controls="myDropdown" aria-expanded="false" onclick="toggleDropdown(this)">
+                        <span class="toolbar-icon sliders-icon" aria-hidden="true">
+                            <span></span><span></span><span></span>
+                        </span>
+                    </button>
+                    <section id="myDropdown" class="dropdown-content settings-panel" aria-labelledby="settingsTitle">
+                        <div class="panel-heading">
+                            <h2 id="settingsTitle">Settings</h2>
+                            <button type="button" class="panel-close" aria-label="Close Settings" onclick="dismissDropdown()">×</button>
+                        </div>
+                        <div class="settings-options">
+                            <div class="setting-row">
+                                <span id="uiSizeLabel">UI size</span>
+                                <div class="size-stepper" role="group" aria-labelledby="uiSizeLabel">
+                                    <button type="button" id="downSize" aria-label="Decrease UI size" onclick="changeSize(-10)">−</button>
+                                    <output id="fontText" aria-live="polite">100%</output>
+                                    <button type="button" id="upSize" aria-label="Increase UI size" onclick="changeSize(10)">+</button>
+                                </div>
+                            </div>
+                            <label class="setting-row">
+                                <span>Highlight on hover</span>
+                                <input type="checkbox" class="panel-switch" id="hoverBtn" onchange="changeHover()">
+                            </label>
+                            <label class="setting-row">
+                                <span>Show turns in local play</span>
+                                <input type="checkbox" class="panel-switch" id="localTurnLabels" onchange="changeLocalTurnLabels()">
+                            </label>
+                        </div>
+                        <div class="theme-section">
+                            <h3 id="themeTitle">Board theme</h3>
+                            <div id="themeChoices" class="theme-grid" role="group" aria-labelledby="themeTitle">
+                                <button type="button" class="theme-card" data-theme="def" aria-pressed="false">
+                                    <span class="theme-preview" aria-hidden="true" style="--preview-surface:#a1b575; --preview-board:#ba9b70"></span>
+                                    Classic
+                                </button>
+                                <button type="button" class="theme-card" data-theme="sand" aria-pressed="false">
+                                    <span class="theme-preview" aria-hidden="true" style="--preview-surface:#c5ad7c; --preview-board:#8b9a59"></span>
+                                    Sand
+                                </button>
+                                <button type="button" class="theme-card" data-theme="black" aria-pressed="false">
+                                    <span class="theme-preview" aria-hidden="true" style="--preview-surface:#2d3035; --preview-board:#767f8e"></span>
+                                    Slate
+                                </button>
+                                <button type="button" class="theme-card" data-theme="blue" aria-pressed="false">
+                                    <span class="theme-preview" aria-hidden="true" style="--preview-surface:#365381; --preview-board:#a27391"></span>
+                                    Blue
+                                </button>
+                                <button type="button" class="theme-card" data-theme="cinder" aria-pressed="false">
+                                    <span class="theme-preview" aria-hidden="true" style="--preview-surface:#29292c; --preview-board:#ac4242"></span>
+                                    Cinder
+                                </button>
+                                <button type="button" class="theme-card" data-theme="bluewood" aria-pressed="false">
+                                    <span class="theme-preview" aria-hidden="true" style="--preview-surface:#466075; --preview-board:#c5b657"></span>
+                                    Blue wood
+                                </button>
+                                <button type="button" class="theme-card" data-theme="sofa" aria-pressed="false">
+                                    <span class="theme-preview" aria-hidden="true" style="--preview-surface:#647880; --preview-board:#d6b68c"></span>
+                                    Canvas
+                                </button>
+                                <button type="button" class="theme-card" data-theme="street" aria-pressed="false">
+                                    <span class="theme-preview" aria-hidden="true" style="--preview-surface:#43403c; --preview-board:#c69247"></span>
+                                    Dark marble
+                                </button>
+                                <button type="button" class="theme-card" data-theme="egypt" aria-pressed="false">
+                                    <span class="theme-preview" aria-hidden="true" style="--preview-surface:#d9d3bc; --preview-board:#bfb07a"></span>
+                                    Marble
+                                </button>
+                                <button type="button" class="theme-card" data-theme="carpet" aria-pressed="false">
+                                    <span class="theme-preview" aria-hidden="true" style="--preview-surface:#37323c; --preview-board:#a980c2"></span>
+                                    Carpet
+                                </button>
+                                <button type="button" class="theme-card" data-theme="deck" aria-pressed="false">
+                                    <span class="theme-preview" aria-hidden="true" style="--preview-surface:#8e6248; --preview-board:#a7b46e"></span>
+                                    Deck
+                                </button>
+                                <button type="button" class="theme-card" data-theme="grill" aria-pressed="false">
+                                    <span class="theme-preview" aria-hidden="true" style="--preview-surface:#403b3a; --preview-board:#95758b"></span>
+                                    Coal
+                                </button>
+                                <button type="button" class="theme-card" data-theme="sea" aria-pressed="false">
+                                    <span class="theme-preview" aria-hidden="true" style="--preview-surface:#bcbf9a; --preview-board:#4a9fc4"></span>
+                                    Sea
+                                </button>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-                <span id="teamEmoji" class="dropdown" style="font-size: 160%;border-radius: 1em;"></span>
             </div>
         </div>
-        <button id="switchBtn" class="switchBtn" onclick="switchPlaces()"><span>⚪<img src="images/switch.svg"
-                    alt="Switch">⚫<br>Switch</span></button>
-        <div id="gameview">
-            <div id="boardDiv" class="gameTable canHover"></div>
-        </div>
+        <main id="gameview">
+            <div id="boardStage">
+                <div class="board-assembly">
+                    <div id="boardDiv" class="gameTable canHover"></div>
+                    <button type="button" id="switchBtn" class="switchBtn" onclick="switchPlaces()" disabled>
+                        <span class="switch-art" aria-hidden="true">
+                            <span class="switch-marble switch-marble-white"></span>
+                            <img src="images/switch.svg" alt="" width="20" height="20">
+                            <span class="switch-marble switch-marble-black"></span>
+                        </span>
+                        Switch
+                    </button>
+                </div>
+            </div>
+        </main>
 
     </div>
 

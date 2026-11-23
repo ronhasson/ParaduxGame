@@ -2,118 +2,111 @@
 var boardDiv = document.getElementById("boardDiv");
 var boardTable;
 var board;
-var selected = "";
-var selected2 = "";
-var lastSelected = "";
-var insertQ = "";
-
+let selected = null;
+let selected2 = null;
+let localTurn = 2;
+let winningTeam = null;
 var disableBoard = false;
 
-function tableClicked(e) {
-    //console.log(getTdPos(e.target));
-    //console.log(selected);
-    //console.log(lastSelected);
-    //console.log(selected2);
-    //console.log(e.target)
+const switchButton = document.getElementById("switchBtn");
+const localTurnMarble = document.getElementById("localTurnMarble");
+const gameResult = document.getElementById("gameResult");
 
-    if (e.target.tagName != "TD" || disableBoard) {
-        return;
+function updateBoardControls() {
+    switchButton.disabled = disableBoard || !selected2;
+
+    localTurnMarble.hidden = !localTurnLabels.checked || !board || Boolean(connection) || disableBoard;
+    if (!localTurnMarble.hidden) {
+        localTurnMarble.textContent = localTurn === 2 ? "⚫" : "⚪";
+        localTurnMarble.setAttribute("aria-label", localTurn === 2 ? "Black’s turn" : "White’s turn");
     }
-    if (selected != "" && selected2 != "") { //3rd blick
-        if (e.target.classList.contains("moveable")) {
-            movePairs(selected, selected2, e.target);
-        }
-        selected.classList.remove("selected");
-        selected2.classList.remove("selected2");
-        unshowMoveable(lastSelected);
-        selected = "";
-        selected2 = "";
-        lastSelected = "";
 
-    } else {
-        if (selected != "") { // 2nd click
-            if (board.field[getTdPos(e.target).x][getTdPos(e.target).y].terrain == tType.Blocked) {
-                return;
-            }
-            lastSelected = selected;
-            selected = e.target;
-            //game logic
-            //unshowMoveable(lastSelected);
-            if (e.target.classList.contains("pairable")) {
-                selected = lastSelected;
-                selected2 = e.target;
-                boardTable.rows[getTdPos(selected2).y].cells[getTdPos(selected2).x].classList.add("selected2");
-                //console.log("paired!")
-                unshowPairs(lastSelected);
-                showMoveable(selected, selected2);
-            } else {
-                lastSelected.classList.remove("selected");
-                if (selected2 != "") {
-                    selected2.classList.remove("selected2");
-                }
-                unshowPairs(lastSelected);
-                selected = "";
-                selected2 = "";
-                lastSelected = "";
-            }
-
-            //--
-
-            //updateLand(getTdPos(lastSelected).x, getTdPos(lastSelected).y);
-            //updateLand(getTdPos(selected).x, getTdPos(selected).y);
-
-
-        } else { //first click
-            if (JSON.stringify(board.field[getTdPos(e.target).x][getTdPos(e.target).y].cont) === JSON.stringify(Object.create(null))) {
-                return;
-            }
-            boardTable.rows[getTdPos(e.target).y].cells[getTdPos(e.target).x].classList.add("selected");
-            selected = e.target;
-
-            //showMoveable(selected);
-            showPairs(selected);
-            updateLand(getTdPos(selected).x, getTdPos(selected).y);
-        }
+    const result = winningTeam ? (winningTeam === 2 ? "Black wins" : "White wins") : "";
+    if (gameResult.textContent !== result) {
+        gameResult.textContent = result;
     }
 }
 
-function switchPlaces(Pselected = "", Pselected2 = "", fromPeer = false) {
-    if (Pselected != "") {
-        selected = boardTable.rows[Pselected.y].cells[Pselected.x]
-        selected2 = boardTable.rows[Pselected2.y].cells[Pselected2.x];
-    }
-    if (selected != "" && selected2 != "") {
-        //console.log("switching");
-        let temp = getUnitT(selected);
-        setUnitT(selected, getUnitT(selected2));
-        setUnitT(selected2, temp);
-        updateLand(getTdPos(selected).x, getTdPos(selected).y);
-        updateLand(getTdPos(selected2).x, getTdPos(selected2).y);
-
-        selected.classList.remove("selected");
-        selected2.classList.remove("selected2");
+function clearSelection() {
+    if (selected) {
+        unshowPairs(selected);
         unshowMoveable(selected);
-
-        if (!fromPeer) {
-            endTurn(selected, selected2);
-            if (connection != null) {
-                connection.send({
-                    func: "switchPlaces",
-                    p1: getTdPos(selected),
-                    p2: getTdPos(selected2),
-                    p3: true
-                })
-            }
-        }
-
-        selected = "";
-        selected2 = "";
-        lastSelected = "";
+        selected.classList.remove("selected");
     }
+    if (selected2) {
+        selected2.classList.remove("selected2");
+    }
+    selected = null;
+    selected2 = null;
+}
+
+function tableClicked(event) {
+    const cell = event.target;
+    if (cell.tagName !== "TD" || disableBoard) {
+        return;
+    }
+
+    if (selected2) {
+        if (cell.classList.contains("moveable")) {
+            const first = selected;
+            const second = selected2;
+            clearSelection();
+            movePairs(first, second, cell);
+        } else {
+            clearSelection();
+        }
+    } else if (selected) {
+        if (cell.classList.contains("blocked")) {
+            return;
+        }
+        if (cell.classList.contains("pairable")) {
+            selected2 = cell;
+            selected2.classList.add("selected2");
+            unshowPairs(selected);
+            showMoveable(selected, selected2);
+        } else {
+            clearSelection();
+        }
+    } else if (getUnitT(cell).team) {
+        selected = cell;
+        selected.classList.add("selected");
+        showPairs(selected);
+    }
+    updateBoardControls();
+}
+
+function switchPlaces(firstPosition, secondPosition, fromPeer = false) {
+    if (!fromPeer && (disableBoard || !selected2)) {
+        return;
+    }
+
+    const first = fromPeer ? boardTable.rows[firstPosition.y].cells[firstPosition.x] : selected;
+    const second = fromPeer ? boardTable.rows[secondPosition.y].cells[secondPosition.x] : selected2;
+    clearSelection();
+
+    const firstUnit = getUnitT(first);
+    setUnitT(first, getUnitT(second));
+    setUnitT(second, firstUnit);
+    updateLand(getTdPos(first).x, getTdPos(first).y);
+    updateLand(getTdPos(second).x, getTdPos(second).y);
+
+    if (!fromPeer) {
+        endTurn(first, second);
+        if (connection != null) {
+            connection.send({
+                func: "switchPlaces",
+                p1: getTdPos(first),
+                p2: getTdPos(second),
+                p3: true
+            });
+        }
+    }
+    updateBoardControls();
 }
 
 function movePairs(targetS1, targetS2, targetToLocation, fromPeer = false) {
     if (fromPeer) {
+        clearSelection();
         var ox1 = (targetS1).x;
         var oy1 = (targetS1).y;
         var ox2 = (targetS2).x;
@@ -167,6 +160,8 @@ function endTurn(selected1, selected2) {
         tempHover(false);
         disableBoard = true;
         document.getElementById("teamEmoji").classList.remove("myTurn");
+    } else {
+        localTurn = localTurn === 2 ? 1 : 2;
     }
     checkVictory(selected1, selected2);
 }

@@ -1,57 +1,83 @@
-if(devicePixelRatio > 1.05){
-    document.body.parentElement.style.fontSize = "115%";
-}
+const localTurnLabels = document.getElementById("localTurnLabels");
+localTurnLabels.checked = localStorage.getItem("localTurnLabels") === "true";
+const hoverToggle = document.getElementById("hoverBtn");
+hoverToggle.checked = localStorage.getItem("hover") !== "false";
+const themeChoices = document.getElementById("themeChoices");
+const themeCards = Array.from(themeChoices.querySelectorAll("[data-theme]"));
 
-changeStyle(localStorage.getItem('style'));
-changeHover(localStorage.getItem('hover'));
+let uiSize = Number(localStorage.getItem("uiSize")) || 100;
+changeSize(0);
+changeStyle(localStorage.getItem("style") || "def");
+tempHover(true);
 
-function settingsDropDown() {
-    document.getElementById("myDropdown").classList.toggle("show");
-}
+themeChoices.addEventListener("click", function (event) {
+    const card = event.target.closest("[data-theme]");
+    if (card) {
+        changeStyle(card.dataset.theme);
+    }
+});
 
-function multiplayerDropDown() {
-    document.getElementById("myDropdown2").classList.toggle("show");
-}
-// Close the dropdown if the user clicks outside of it
-window.onclick = function (event) {
-    //console.log(event.target);
-    if (event.target.matches('#boardDiv') || event.target.matches('.dropdown')) {
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        var i;
-        for (i = 0; i < dropdowns.length; i++) {
-            var openDropdown = dropdowns[i];
-            if (openDropdown.classList.contains('show')) {
-                openDropdown.classList.remove('show');
-            }
-        }
+const toolbarMenus = document.querySelectorAll(".toolbar-button[aria-controls]");
+
+function closeDropdowns() {
+    for (const button of toolbarMenus) {
+        button.setAttribute("aria-expanded", "false");
+        document.getElementById(button.getAttribute("aria-controls")).classList.remove("show");
     }
 }
+
+function toggleDropdown(button) {
+    const shouldOpen = button.getAttribute("aria-expanded") === "false";
+    closeDropdowns();
+    if (shouldOpen) {
+        button.setAttribute("aria-expanded", "true");
+        document.getElementById(button.getAttribute("aria-controls")).classList.add("show");
+    }
+}
+
+function dismissDropdown() {
+    const expandedButton = document.querySelector('.toolbar-button[aria-expanded="true"]');
+    closeDropdowns();
+    expandedButton?.focus();
+}
+
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        dismissDropdown();
+    }
+});
+
+document.addEventListener("click", function (event) {
+    if (!event.target.closest(".dropdown")) {
+        closeDropdowns();
+    }
+});
 
 function changeSize(by) {
-    let s = document.body.style.fontSize;
-    s = s.substring(0, s.length - 1);
-    s = parseInt(s, 10)
-    let db = document.getElementById("downSize");
-    let ub = document.getElementById("upSize");
-    let ft = document.getElementById("fontText");
-    if (s + by <= 80) {
-        db.disabled = true;
-    } else {
-        db.disabled = false;
+    uiSize = Math.min(200, Math.max(80, uiSize + by));
+    document.body.style.setProperty("--ui-scale", uiSize / 100);
+    document.getElementById("fontText").textContent = uiSize + "%";
+    document.getElementById("downSize").disabled = uiSize === 80;
+    document.getElementById("upSize").disabled = uiSize === 200;
+    if (by !== 0) {
+        localStorage.setItem("uiSize", uiSize);
     }
-    if (s + by >= 200) {
-        ub.disabled = true;
-    } else {
-        ub.disabled = false;
-    }
-    document.body.style.fontSize = (s + by) + "%";
-    ft.innerHTML = "Size: " + document.body.style.fontSize;
+}
+
+function changeLocalTurnLabels() {
+    localStorage.setItem("localTurnLabels", localTurnLabels.checked);
+    updateBoardControls();
 }
 
 function changeStyle(name) {
-    if (name != "") {
-        localStorage.setItem('style', name);
+    if (!themeCards.some(card => card.dataset.theme === name)) {
+        name = "def";
     }
+    document.getElementById("all").dataset.uiTheme = name;
+    for (const card of themeCards) {
+        card.setAttribute("aria-pressed", String(card.dataset.theme === name));
+    }
+    localStorage.setItem("style", name);
     let tColor;
     switch (name) {
         case "def":
@@ -60,7 +86,6 @@ function changeStyle(name) {
                 document.getElementById("boardDiv").childNodes[0].style = "";
             document.body.style.backgroundImage = "url(images/DefaultBG.jpg)";
             document.getElementById("all").style = "";
-            document.getElementById("switchBtn").style = "";
             break;
         case "sand":
             tColor = "rgba(92, 152, 56, 0.6)";
@@ -68,7 +93,6 @@ function changeStyle(name) {
                 document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/sand.jpg)";
             document.getElementById("all").style = "--color: " + tColor;
-            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
         case "black":
             tColor = "#5d6a78b3";
@@ -76,7 +100,6 @@ function changeStyle(name) {
                 document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/black.jpg)";
             document.getElementById("all").style = "--color: " + tColor;
-            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
         case "blue":
             tColor = "#bf607e99";
@@ -84,7 +107,6 @@ function changeStyle(name) {
                 document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/blue1.jpg)";
             document.getElementById("all").style = "--color: " + tColor;
-            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
         case "cinder":
             tColor = "rgb(180, 50, 50)";
@@ -92,7 +114,6 @@ function changeStyle(name) {
                 document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/black.jpg)";
             document.getElementById("all").style = "--color: " + tColor;
-            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
         case "bluewood":
             tColor = "rgb(224, 210, 82)";
@@ -100,7 +121,6 @@ function changeStyle(name) {
                 document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/blueWood.jpg)";
             document.getElementById("all").style = "--color: " + tColor;
-            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
         case "grill":
             tColor = "rgb(151, 82, 115)";
@@ -108,7 +128,6 @@ function changeStyle(name) {
                 document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/Coal.jpg)";
             document.getElementById("all").style = "--color: " + tColor;
-            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
         case "sea":
             tColor = "rgb(62, 164, 211)";
@@ -116,7 +135,6 @@ function changeStyle(name) {
                 document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/Sand2.jpg)";
             document.getElementById("all").style = "--color: " + tColor;
-            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
         case "sofa":
             tColor = "rgb(221, 191, 147)";
@@ -124,7 +142,6 @@ function changeStyle(name) {
                 document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/sofa.jpg)";
             document.getElementById("all").style = "--color: " + tColor;
-            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
         case "egypt":
             tColor = "rgb(209, 196, 121)";
@@ -132,7 +149,6 @@ function changeStyle(name) {
                 document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/marble.jpg)";
             document.getElementById("all").style = "--color: " + tColor;
-            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
         case "street":
             tColor = "rgb(211, 140, 33)";
@@ -140,7 +156,6 @@ function changeStyle(name) {
                 document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/darkMarble.jpg)";
             document.getElementById("all").style = "--color: " + tColor;
-            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
         case "deck":
             tColor = "rgb(200, 224, 114)";
@@ -148,7 +163,6 @@ function changeStyle(name) {
                 document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/wood.jpg)";
             document.getElementById("all").style = "--color: " + tColor;
-            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
         case "carpet":
             tColor = "rgb(169, 121, 209)";
@@ -156,7 +170,6 @@ function changeStyle(name) {
                 document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
             document.body.style.backgroundImage = "url(images/carpetBlack.jpg)";
             document.getElementById("all").style = "--color: " + tColor;
-            document.getElementById("switchBtn").style = generateStyle(tColor);
             break;
     }
 }
@@ -165,47 +178,27 @@ function generateStyle(color) {
     return "--color: " + color + ";background: -webkit-linear-gradient(left, rgba(233, 223, 196, 1) 0%, rgba(233, 223, 196, 1) 1%, rgba(237, 227, 200, 1) 2%, rgba(237, 227, 200, 1) 24%, rgba(235, 221, 195, 1) 25%, rgba(233, 223, 196, 1) 48%, rgba(235, 221, 195, 1) 49%, rgba(230, 216, 189, 1) 52%, rgba(230, 216, 189, 1) 53%, rgba(233, 219, 192, 1) 54%, rgba(230, 216, 189, 1) 55%, rgba(230, 216, 189, 1) 56%, rgba(233, 219, 192, 1) 57%, rgba(230, 216, 189, 1) 58%, rgba(230, 216, 189, 1) 73%, rgba(233, 219, 192, 1) 74%, rgba(233, 219, 192, 1) 98%, rgba(235, 221, 195, 1) 100%), var(--color);background-repeat: repeat, repeat;background-size: auto auto, auto auto;background-repeat: repeat;background-size: auto auto;background-size: 63px;background-blend-mode: multiply;border: 1em ridge var(--color);"
 }
 
-function changeHover(startAs = undefined) {
-    let btn = document.getElementById("hoverBtn");
-    let elem = document.getElementById("boardDiv");
-    if (startAs != undefined) { // when u refresh the page
-        //console.log("setting hover as " + startAs)
-        if (startAs == "true") {
-            btn.value = "Disable";
-            elem.classList.add("canHover");
-        } else if (startAs == "false") {
-            btn.value = "Enable";
-            elem.classList.remove("canHover");
-        }
+function changeHover() {
+    localStorage.setItem("hover", hoverToggle.checked);
+    tempHover(!disableBoard);
+}
+
+function tempHover(enabled) {
+    document.getElementById("boardDiv").classList.toggle("canHover", enabled && hoverToggle.checked);
+}
+
+async function copyLink() {
+    const field = document.getElementById("inviteURL");
+    const status = document.getElementById("copyStatus");
+    if (!field.value) {
         return;
     }
-    if (btn.value == "Disable") { //normal button press
-        btn.value = "Enable";
-        elem.classList.remove("canHover"); //disalbe
-        localStorage.setItem('hover', false);
-    } else if (btn.value == "Enable") {
-        btn.value = "Disable";
-        elem.classList.add("canHover"); //enable
-        localStorage.setItem('hover', true);
+    try {
+        await navigator.clipboard.writeText(field.value);
+        status.textContent = "Invite link copied.";
+    } catch {
+        field.focus();
+        field.select();
+        status.textContent = "Copy the selected link to share it.";
     }
-}
-
-function tempHover(bool) {
-    let btn = document.getElementById("hoverBtn");
-    let elem = document.getElementById("boardDiv");
-
-    if (!bool) { //wants to disable hover - not their turn
-        elem.classList.remove("canHover");
-    } else { //wants to enable hover
-        if (btn.value == "Enable") { //user hates hover
-            return;
-        } else {
-            elem.classList.add("canHover");
-        }
-    }
-}
-
-function copyLink() {
-    let str = window.location.href + "#" + peer.id;
-    navigator.clipboard.writeText(str);
 }

@@ -35,11 +35,12 @@ function drawBoard(fromPeer = false) {
             func: "new"
         })
     }
-    console.log("drawing board");
+    clearSelection();
+    localTurn = 2;
+    winningTeam = null;
     board = new Board(7);
     boardDiv.innerHTML = "";
     boardTable = document.createElement("table");
-    boardTable.border = 1;
 
     for (var i = 0; i < board.size; ++i) {
         var row = document.createElement("tr");
@@ -62,13 +63,14 @@ function drawBoard(fromPeer = false) {
     };
 
     boardDiv.appendChild(boardTable);
-    changeStyle(localStorage.getItem('style'));
+    changeStyle(localStorage.getItem("style") || "def");
     tempHover(true);
     disableBoard = false;
 
     boardTable.addEventListener("click", tableClicked);
 
     updateAllLand();
+    updateBoardControls();
 }
 
 function updateLand(x, y) {
@@ -89,9 +91,6 @@ function updateLand(x, y) {
                 boardTable.rows[y].cells[x].classList.add("hidden");
             }
             break;
-    }
-    if (JSON.stringify(board.field[x][y].cont) !== JSON.stringify(Object.create(null))) {
-        boardTable.rows[y].cells[x].innerHTML = board.field[x][y].cont.toString();
     }
     if (board.field[x][y].cont.team == 1) {
         boardTable.rows[y].cells[x].classList.remove("enemy", "natural");
@@ -275,7 +274,8 @@ function checkVictory(s1, s2) {
         return;
     }
     if (b1) {
-        disableBoard = true
+        winningTeam = getUnitT(s1).team;
+        disableBoard = true;
         tempHover(false);
         if (s10)
             markWinner(s1, arr[0]);
@@ -285,7 +285,8 @@ function checkVictory(s1, s2) {
             markWinner(s1, arr[2]);
     }
     if (b2) {
-        disableBoard = true
+        winningTeam = getUnitT(s2).team;
+        disableBoard = true;
         tempHover(false);
         if (s20)
             markWinner(s2, arr[0]);
