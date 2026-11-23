@@ -5,6 +5,24 @@ hoverToggle.checked = localStorage.getItem("hover") !== "false";
 const themeChoices = document.getElementById("themeChoices");
 const themeCards = Array.from(themeChoices.querySelectorAll("[data-theme]"));
 
+const boardThemes = {
+    def: { image: "DefaultBG.webp" },
+    wood2: { image: "wood2.webp", frame: "#b98d59", surface: "#54402f" },
+    grass: { image: "grass.webp", frame: "#c4a473", surface: "#526744" },
+    sand: { image: "sand.webp", frame: "rgba(92, 152, 56, 0.6)" },
+    black: { image: "black.webp", frame: "#5d6a78b3" },
+    blue: { image: "blue1.webp", frame: "#bf607e99" },
+    cinder: { image: "black.webp", frame: "rgb(180, 50, 50)" },
+    bluewood: { image: "blueWood.webp", frame: "rgb(224, 210, 82)" },
+    sofa: { image: "sofa.webp", frame: "rgb(221, 191, 147)" },
+    street: { image: "darkMarble.webp", frame: "rgb(211, 140, 33)" },
+    egypt: { image: "marble.webp", frame: "rgb(209, 196, 121)" },
+    carpet: { image: "carpetBlack.webp", frame: "rgb(169, 121, 209)" },
+    deck: { image: "wood.webp", frame: "rgb(200, 224, 114)" },
+    grill: { image: "Coal.webp", frame: "rgb(151, 82, 115)" },
+    sea: { image: "Sand2.webp", frame: "rgb(62, 164, 211)" }
+};
+
 let uiSize = Number(localStorage.getItem("uiSize")) || 100;
 changeSize(0);
 changeStyle(localStorage.getItem("style") || "def");
@@ -70,108 +88,33 @@ function changeLocalTurnLabels() {
 }
 
 function changeStyle(name) {
-    if (!themeCards.some(card => card.dataset.theme === name)) {
+    if (!Object.hasOwn(boardThemes, name)) {
         name = "def";
     }
-    document.getElementById("all").dataset.uiTheme = name;
+
+    const theme = boardThemes[name];
+    const game = document.getElementById("all");
+    const board = document.querySelector("#boardDiv > table");
+    game.dataset.uiTheme = name;
+    document.body.style.setProperty("--surface-image", 'url("images/' + theme.image + '")');
+    if (theme.surface) {
+        document.body.style.setProperty("--surface-fallback", theme.surface);
+    } else {
+        document.body.style.removeProperty("--surface-fallback");
+    }
+
+    if (theme.frame) {
+        game.style.setProperty("--color", theme.frame);
+    } else {
+        game.style.removeProperty("--color");
+    }
+    if (board) {
+        board.style.cssText = theme.frame ? generateStyle(theme.frame) : "";
+    }
     for (const card of themeCards) {
         card.setAttribute("aria-pressed", String(card.dataset.theme === name));
     }
     localStorage.setItem("style", name);
-    let tColor;
-    switch (name) {
-        case "def":
-            tColor = "";
-            if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = "";
-            document.body.style.backgroundImage = "url(images/DefaultBG.jpg)";
-            document.getElementById("all").style = "";
-            break;
-        case "sand":
-            tColor = "rgba(92, 152, 56, 0.6)";
-            if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
-            document.body.style.backgroundImage = "url(images/sand.jpg)";
-            document.getElementById("all").style = "--color: " + tColor;
-            break;
-        case "black":
-            tColor = "#5d6a78b3";
-            if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
-            document.body.style.backgroundImage = "url(images/black.jpg)";
-            document.getElementById("all").style = "--color: " + tColor;
-            break;
-        case "blue":
-            tColor = "#bf607e99";
-            if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
-            document.body.style.backgroundImage = "url(images/blue1.jpg)";
-            document.getElementById("all").style = "--color: " + tColor;
-            break;
-        case "cinder":
-            tColor = "rgb(180, 50, 50)";
-            if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
-            document.body.style.backgroundImage = "url(images/black.jpg)";
-            document.getElementById("all").style = "--color: " + tColor;
-            break;
-        case "bluewood":
-            tColor = "rgb(224, 210, 82)";
-            if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
-            document.body.style.backgroundImage = "url(images/blueWood.jpg)";
-            document.getElementById("all").style = "--color: " + tColor;
-            break;
-        case "grill":
-            tColor = "rgb(151, 82, 115)";
-            if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
-            document.body.style.backgroundImage = "url(images/Coal.jpg)";
-            document.getElementById("all").style = "--color: " + tColor;
-            break;
-        case "sea":
-            tColor = "rgb(62, 164, 211)";
-            if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
-            document.body.style.backgroundImage = "url(images/Sand2.jpg)";
-            document.getElementById("all").style = "--color: " + tColor;
-            break;
-        case "sofa":
-            tColor = "rgb(221, 191, 147)";
-            if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
-            document.body.style.backgroundImage = "url(images/sofa.jpg)";
-            document.getElementById("all").style = "--color: " + tColor;
-            break;
-        case "egypt":
-            tColor = "rgb(209, 196, 121)";
-            if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
-            document.body.style.backgroundImage = "url(images/marble.jpg)";
-            document.getElementById("all").style = "--color: " + tColor;
-            break;
-        case "street":
-            tColor = "rgb(211, 140, 33)";
-            if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
-            document.body.style.backgroundImage = "url(images/darkMarble.jpg)";
-            document.getElementById("all").style = "--color: " + tColor;
-            break;
-        case "deck":
-            tColor = "rgb(200, 224, 114)";
-            if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
-            document.body.style.backgroundImage = "url(images/wood.jpg)";
-            document.getElementById("all").style = "--color: " + tColor;
-            break;
-        case "carpet":
-            tColor = "rgb(169, 121, 209)";
-            if (document.getElementById("boardDiv").childNodes.length != 0)
-                document.getElementById("boardDiv").childNodes[0].style = generateStyle(tColor);
-            document.body.style.backgroundImage = "url(images/carpetBlack.jpg)";
-            document.getElementById("all").style = "--color: " + tColor;
-            break;
-    }
 }
 
 function generateStyle(color) {

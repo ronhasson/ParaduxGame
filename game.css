@@ -3,10 +3,20 @@ body {
     --ui-scale: 1;
     background-color: #f3f3f3;
     margin: 0;
-    background-image: url(images/DefaultBG.jpg);
+    background-image: var(--surface-image, url(images/DefaultBG.webp));
     background-repeat: repeat;
     font-family: "NovaFlat";
     font-size: calc(100% * var(--ui-scale));
+}
+
+body:has(#all:is([data-ui-theme="wood2"], [data-ui-theme="grass"])) {
+    min-block-size: 100vh;
+    min-block-size: 100dvh;
+    background-color: var(--surface-fallback, #526744);
+    background-image: radial-gradient(ellipse at center, transparent 35%, #141b1333), var(--surface-image);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 button,
@@ -150,6 +160,22 @@ td.moveable {
     grid-template-rows: auto minmax(0, 1fr);
     block-size: 100vh;
     block-size: 100dvh;
+}
+
+#all[data-ui-theme="wood2"] {
+    --ui-header: #36271d;
+    --ui-accent: #704c30;
+    --ui-tint: #eee0ca;
+}
+
+#all[data-ui-theme="grass"] {
+    --ui-header: #293b20;
+    --ui-accent: #4d6532;
+    --ui-tint: #e4ebcf;
+}
+
+#all:is([data-ui-theme="wood2"], [data-ui-theme="grass"]) #boardDiv > table {
+    box-shadow: 0 5px 14px #18150d66, 0 16px 32px #18150d66;
 }
 
 #all[data-ui-theme="sand"] {
