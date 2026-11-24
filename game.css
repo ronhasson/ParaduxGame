@@ -348,12 +348,17 @@ td.moveable {
     cursor: pointer;
 }
 
-.toolbar-button:hover,
+.toolbar-button:enabled:hover,
 .toolbar-button[aria-expanded="true"] {
     background: var(--ui-toolbar-hover);
 }
 
-.toolbar-button:active {
+.toolbar-button:disabled {
+    opacity: 0.58;
+    cursor: default;
+}
+
+.toolbar-button:enabled:active {
     box-shadow: inset 0 1px 3px #58452c55;
 }
 

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Paradux</title>
     <link rel="shortcut icon" href="favicon.ico">
-    <link rel="stylesheet" href="game.css">
+    <link rel="stylesheet" href="game.css?v=2">
     <!--meta http-equiv="Content-Security-Policy" content=""> TODO -->
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-148912183-1"></script>
@@ -26,7 +26,7 @@
     <div id="all">
         <div id="header">
             <div class="header-actions header-start">
-                <button type="button" class="toolbar-button" aria-label="New game" title="New game" onclick="drawBoard()">
+                <button type="button" id="newGameBtn" class="toolbar-button" aria-label="New game" title="New game" onclick="requestNewGame()">
                     <span class="toolbar-icon" aria-hidden="true">↻</span>
                 </button>
                 <span id="gameResult" role="status"></span>
@@ -34,7 +34,7 @@
             <h1 id="title">Paradux</h1>
             <div class="header-actions header-end">
                 <span id="localTurnMarble" class="turn-marble" role="img" hidden></span>
-                <span id="teamEmoji" class="turn-marble"></span>
+                <span id="teamEmoji" class="turn-marble" role="img"></span>
                 <div class="dropdown">
                     <button type="button" id="multSettBtn" class="toolbar-button" aria-label="Online" title="Online"
                         aria-controls="myDropdown2" aria-expanded="false" onclick="toggleDropdown(this)">
@@ -55,6 +55,7 @@
                             <p id="copyStatus" role="status"></p>
                         </div>
                         <button type="button" id="eMultiBtn" class="panel-button panel-primary" onclick="toggleOnline()">Start online game</button>
+                        <button type="button" id="leaveInviteBtn" class="panel-button" onclick="leaveOnline()" hidden>Leave invite</button>
                     </section>
                 </div>
                 <div class="dropdown">
@@ -160,7 +161,7 @@
             <div id="boardStage">
                 <div class="board-assembly">
                     <div id="boardDiv" class="gameTable canHover"></div>
-                    <button type="button" id="switchBtn" class="switchBtn" onclick="switchPlaces()" disabled>
+                    <button type="button" id="switchBtn" class="switchBtn" onclick="submitPairMove()" disabled>
                         <span class="switch-art" aria-hidden="true">
                             <span class="switch-marble switch-marble-white"></span>
                             <img src="images/switch.svg" alt="" width="20" height="20">
@@ -178,12 +179,12 @@
 
 <script rel="preload" src="board.js"></script>
 <script rel="preload" src="units.js"></script>
-<script rel="preload" src="gamehelper.js"></script>
-<script src="uiScript.js"></script>
-<script src="peerjs.min.js"></script>
+<script src="gamehelper.js?v=2"></script>
+<script src="uiScript.js?v=2"></script>
+<script src="peerjs.min.js?v=1.5.5"></script>
 
-<script rel="preload" src="game.js"></script>
+<script src="game.js?v=2"></script>
 
-<script src="multiplayer.js"></script>
+<script src="multiplayer.js?v=2"></script>
 
 </html>

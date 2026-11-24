@@ -25,18 +25,9 @@ function setUnitE(e, unit) {
     setUnit(getTdPos(e.target).x, getTdPos(e.target).y, unit);
 }
 
-function setUnitT(t, unit) {
-    setUnit(getTdPos(t).x, getTdPos(t).y, unit);
-}
-
-function drawBoard(fromPeer = false) {
-    if (!fromPeer && connection != null) {
-        connection.send({
-            func: "new"
-        })
-    }
+function drawBoard() {
     clearSelection();
-    localTurn = 2;
+    turnTeam = 2;
     winningTeam = null;
     board = new Board(7);
     boardDiv.innerHTML = "";
@@ -64,9 +55,6 @@ function drawBoard(fromPeer = false) {
 
     boardDiv.appendChild(boardTable);
     changeStyle(localStorage.getItem("style") || "def");
-    tempHover(true);
-    disableBoard = false;
-
     boardTable.addEventListener("click", tableClicked);
 
     updateAllLand();
@@ -112,139 +100,65 @@ function updateAllLand() {
     }
 }
 
-function showPairs(target) {
-    let arr = [
-        [1, 0],
-        [0, 1],
-        [-1, 1],
-        [0, -1],
-        [-1, 0],
-        [1, -1]
-    ];
+const pairDirections = [[1, 0], [0, 1], [-1, 1], [0, -1], [-1, 0], [1, -1]];
 
-    for (let move = 0; move < arr.length; move++) {
-        let x = getTdPos(target).x;
-        let y = getTdPos(target).y;
-
-        x += arr[move][0];
-        y += arr[move][1];
-
-        if (y < 0 || y > board.size - 1 || x < 0 || x > board.size - 1) {
-            continue;
-        }
-        if (JSON.stringify(board.field[x][y].cont) === JSON.stringify(Object.create(null)) || boardTable.rows[y].cells[x].classList.contains("blocked")) {
-            continue;
-        }
-        if (board.field[x][y].cont.team == getUnit(getTdPos(target).x, getTdPos(target).y).team) {
-            continue;
-        }
-
-        boardTable.rows[y].cells[x].classList.add("pairable");
+function playableLand(position) {
+    if (!position || !Number.isInteger(position.x) || !Number.isInteger(position.y)) {
+        return null;
     }
-
+    const land = board.field[position.x]?.[position.y];
+    return land && land.terrain !== tType.Blocked ? land : null;
 }
 
-function unshowPairs(target) {
-    let arr = [
-        [1, 0],
-        [0, 1],
-        [0, -1],
-        [-1, 0],
-        [-1, 1],
-        [1, -1]
-    ];
-
-    for (let move = 0; move < arr.length; move++) {
-        let x = getTdPos(target).x;
-        let y = getTdPos(target).y;
-
-        x += arr[move][0];
-        y += arr[move][1];
-
-        if (y < 0 || y > board.size - 1 || x < 0 || x > board.size - 1) {
-            continue;
-        }
-        if (JSON.stringify(board.field[x][y].cont) === JSON.stringify(Object.create(null)) || boardTable.rows[y].cells[x].classList.contains("blocked")) {
-            continue;
-        }
-        if (board.field[x][y].cont.team == getUnit(getTdPos(target).x, getTdPos(target).y).team) {
-            continue;
-        }
-
-        boardTable.rows[y].cells[x].classList.remove("pairable");
-    }
-
+function isPairDirection(dx, dy) {
+    return pairDirections.some(([x, y]) => x === dx && y === dy);
 }
 
-function showMoveable(target, target2) {
-    let x = getTdPos(target).x;
-    let y = getTdPos(target).y;
-    let x2 = getTdPos(target2).x;
-    let y2 = getTdPos(target2).y;
-    let arr = [
-        [1, 0],
-        [0, 1],
-        [0, -1],
-        [-1, 0],
-        [-1, 1],
-        [1, -1]
-    ];
+function isPlayablePair(first, second) {
+    const firstTeam = playableLand(first)?.cont.team;
+    const secondTeam = playableLand(second)?.cont.team;
+    return firstTeam && secondTeam && firstTeam !== secondTeam &&
+        isPairDirection(second.x - first.x, second.y - first.y);
+}
 
-    for (let move = 0; move < arr.length; move++) {
-        x = getTdPos(target).x;
-        y = getTdPos(target).y;
-        x2 = getTdPos(target2).x;
-        y2 = getTdPos(target2).y;
+function isOpenForPair(position, occupiedByPair) {
+    const land = playableLand(position);
+    return land && (!land.cont.team || (position.x === occupiedByPair.x && position.y === occupiedByPair.y));
+}
 
-        x += arr[move][0];
-        y += arr[move][1];
-        x2 += arr[move][0];
-        y2 += arr[move][1];
+function slideDestinations(first, second, target) {
+    if (!target || !Number.isInteger(target.x) || !Number.isInteger(target.y)) {
+        return null;
+    }
+    const dx = target.x - first.x;
+    const dy = target.y - first.y;
+    if (!isPairDirection(dx, dy)) {
+        return null;
+    }
+    const secondEnd = { x: second.x + dx, y: second.y + dy };
+    return isOpenForPair(target, second) && isOpenForPair(secondEnd, first)
+        ? [target, secondEnd]
+        : null;
+}
 
-        if (y < 0 || y > board.size - 1 || x < 0 || x > board.size - 1) {
-            continue;
+function showPairs(cell) {
+    const first = getTdPos(cell);
+    for (const [dx, dy] of pairDirections) {
+        const second = { x: first.x + dx, y: first.y + dy };
+        if (isPlayablePair(first, second)) {
+            boardTable.rows[second.y].cells[second.x].classList.add("pairable");
         }
-        if (y2 < 0 || y2 > board.size - 1 || x2 < 0 || x2 > board.size - 1) {
-            continue;
-        }
-        if ((JSON.stringify(board.field[x][y].cont) !== JSON.stringify(Object.create(null)) && !boardTable.rows[y].cells[x].classList.contains("selected2")) || boardTable.rows[y].cells[x].classList.contains("blocked")) {
-            continue;
-        }
-        if ((JSON.stringify(board.field[x2][y2].cont) !== JSON.stringify(Object.create(null)) && !boardTable.rows[y2].cells[x2].classList.contains("selected")) || boardTable.rows[y2].cells[x2].classList.contains("blocked")) {
-            continue;
-        }
-        boardTable.rows[y].cells[x].classList.add("moveable");
-
     }
 }
 
-function unshowMoveable(target) {
-    let x = getTdPos(target).x;
-    let y = getTdPos(target).y;
-    let arr = [
-        [1, 0],
-        [0, 1],
-        [0, -1],
-        [-1, 0],
-        [-1, 1],
-        [1, -1]
-    ];
-
-    for (let move = 0; move < arr.length; move++) {
-        x = getTdPos(target).x;
-        y = getTdPos(target).y;
-
-        x += arr[move][0];
-        y += arr[move][1];
-
-        if (y < 0 || y > board.size - 1 || x < 0 || x > board.size - 1) {
-            continue;
+function showMoveable(firstCell, secondCell) {
+    const first = getTdPos(firstCell);
+    const second = getTdPos(secondCell);
+    for (const [dx, dy] of pairDirections) {
+        const target = { x: first.x + dx, y: first.y + dy };
+        if (slideDestinations(first, second, target)) {
+            boardTable.rows[target.y].cells[target.x].classList.add("moveable");
         }
-        if (boardTable.rows[y].cells[x].classList.contains("blocked")) {
-            continue;
-        }
-        boardTable.rows[y].cells[x].classList.remove("moveable");
-
     }
 }
 
@@ -270,13 +184,11 @@ function checkVictory(s1, s2) {
     b1 = s10 || s11 || s12;
     b2 = s20 || s21 || s22;
 
-    if (b1 && b2) { //tie? go on until only one wins? who the f will get a try other than a tester
+    if (b1 && b2) { // Both colors lined up at once, so play continues.
         return;
     }
     if (b1) {
         winningTeam = getUnitT(s1).team;
-        disableBoard = true;
-        tempHover(false);
         if (s10)
             markWinner(s1, arr[0]);
         if (s11)
@@ -286,8 +198,6 @@ function checkVictory(s1, s2) {
     }
     if (b2) {
         winningTeam = getUnitT(s2).team;
-        disableBoard = true;
-        tempHover(false);
         if (s20)
             markWinner(s2, arr[0]);
         if (s21)

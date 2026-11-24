@@ -1,13 +1,21 @@
-var peer = null;
-var connection = null;
-
-const multSettBtn = document.getElementById("multSettBtn");
+const onlineProtocol = "paradux-v1";
+const connectionWaitMs = 25000;
+const onlineButton = document.getElementById("multSettBtn");
 const onlineAction = document.getElementById("eMultiBtn");
 const onlineStatus = document.getElementById("onlineStatus");
 const onlineInvite = document.getElementById("onlineInvite");
 const inviteURL = document.getElementById("inviteURL");
+const leaveInviteButton = document.getElementById("leaveInviteBtn");
 const copyStatus = document.getElementById("copyStatus");
-let emojiText = document.getElementById("teamEmoji");
+const onlineMarble = document.getElementById("teamEmoji");
+
+let peer = null;
+let connection = null;
+let onlineTeam = null;
+let roundNumber = 0;
+let moveNumber = 0;
+let waitingForRestart = false;
+let connectionTimeout;
 
 const onlineActions = {
     idle: "Start online game",
@@ -15,53 +23,86 @@ const onlineActions = {
     ready: "Close online game",
     connecting: "Cancel",
     connected: "Disconnect",
+    expired: "Start online game",
     error: "Try again"
 };
 
 function showOnlineState(state, message) {
     onlineStatus.textContent = message;
-    onlineStatus.dataset.state = state;
-    multSettBtn.dataset.onlineState = state;
+    onlineStatus.dataset.state = state === "expired" ? "error" : state;
+    onlineButton.dataset.onlineState = state;
     onlineAction.textContent = onlineActions[state];
-    onlineAction.classList.toggle("panel-primary", state === "idle" || state === "error");
+    onlineAction.classList.toggle("panel-primary", state === "idle" || state === "error" || state === "expired");
+    leaveInviteButton.hidden = state !== "error" || !window.location.hash;
+}
+
+function updateOnlineTurn() {
+    const ownsTurn = onlineTeam === turnTeam && !disableBoard;
+    onlineMarble.textContent = onlineTeam === 2 ? "⚫" : onlineTeam === 1 ? "⚪" : "";
+    onlineMarble.classList.toggle("myTurn", ownsTurn);
+    if (onlineTeam !== null) {
+        const color = onlineTeam === 2 ? "Black" : "White";
+        onlineMarble.setAttribute("aria-label", ownsTurn ? color + " · Your turn" : color);
+        onlineMarble.title = ownsTurn ? "Your turn" : "You play " + color.toLowerCase();
+    }
 }
 
 function toggleOnline() {
     if (peer) {
-        disableMulti();
+        leaveOnline();
     } else {
-        enableMulti();
+        startOnline();
     }
 }
 
-let t1 = "⚪";
-let t2 = "⚫";
-var imTeam;
-
-if (window.location.hash) {
-    toggleDropdown(multSettBtn);
-    enableMulti();
-} else {
-    drawBoard();
+function waitForConnection(message) {
+    clearTimeout(connectionTimeout);
+    connectionTimeout = setTimeout(() => endOnline("error", message), connectionWaitMs);
 }
 
-function enableMulti() {
+function startOnline() {
     const joinID = window.location.hash.slice(1);
+    if (joinID && !/^[a-z0-9_-]{1,128}$/i.test(joinID)) {
+        endOnline("expired", "This invite is invalid. Ask your friend for a new link.");
+        return;
+    }
+    if (joinID) {
+        onlineTeam = 1;
+        clearSelection();
+        updateBoardControls();
+    }
     showOnlineState("opening", joinID ? "Connecting to your friend…" : "Creating your invite…");
-
-    const activePeer = new Peer(null, {
-        host: 'peer.ronhasson.cyou',
-        key: "ron",
-        secure: true
-    });
+    waitForConnection("The signaling service took too long to respond. Try again.");
+    let activePeer;
+    try {
+        // Supplying an ID makes opening the signaling socket cancellable immediately.
+        const id = Array.from(crypto.getRandomValues(new Uint8Array(16)),
+            byte => byte.toString(16).padStart(2, "0")).join("");
+        activePeer = new peerjs.Peer(id, {
+            config: { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] }
+        });
+    } catch {
+        endOnline("error", "This browser couldn’t start multiplayer. Try again.");
+        return;
+    }
     peer = activePeer;
 
-    activePeer.on('open', function (id) {
+    activePeer.on("open", id => {
         if (peer !== activePeer) {
             return;
         }
+        clearTimeout(connectionTimeout);
         if (joinID) {
-            connectTo(joinID);
+            const joining = activePeer.connect(joinID, {
+                label: onlineProtocol,
+                serialization: "json",
+                reliable: true
+            });
+            if (joining) {
+                attachConnection(joining);
+            } else {
+                endOnline("error", "Couldn’t connect to your friend. Try again.");
+            }
             return;
         }
         const url = new URL(window.location.href);
@@ -71,125 +112,173 @@ function enableMulti() {
         showOnlineState("ready", "Invite ready. Waiting for your friend to join.");
     });
 
-    activePeer.on('connection', function (conn) {
+    activePeer.on("connection", incoming => {
+        if (peer !== activePeer || incoming.label !== onlineProtocol) {
+            incoming.close();
+            return;
+        }
+        if (connection || joinID) {
+            incoming.on("open", () => {
+                incoming.send({ type: "full" });
+                incoming.close({ flush: true });
+            });
+            return;
+        }
+        onlineTeam = 2;
+        attachConnection(incoming);
+    });
+
+    activePeer.on("error", error => {
         if (peer !== activePeer) {
             return;
         }
-        if (connection != null) { //redject other ppl
-            console.info("game is full - another guy tries to connect");
-            peer.disconnect(); //for some reason, the code below doesnt work at all. this is a temp workaround (it thinks its connected all the time and doesnt send anything)
-            let connID = conn.peer;
-            console.log("another guy tries to connect");
-            console.log(conn);
-            setTimeout(peer.connections[connID][0].send({
-                func: "alert",
-                p1: "Game already have 2 players inside"
-            }), 500);
-            conn.close();
+        if (connection?.open) {
             return;
         }
-        emojiText.innerText = t2;
-        emojiText.classList.add("myTurn");
-        imTeam = 2;
-        connectionLogic(conn);
+        if (error.type === "peer-unavailable" && joinID) {
+            endOnline("expired", "This invite has expired or the host is offline. Ask for a new link.");
+        } else {
+            endOnline("error", "Couldn’t connect to the multiplayer service. Try again.");
+        }
     });
 
-    activePeer.on('error', function (err) {
-        if (peer === activePeer) {
-            console.error(err);
-            disableMulti("Couldn’t connect to the multiplayer service.");
+    activePeer.on("disconnected", () => {
+        if (peer !== activePeer) {
+            return;
+        }
+        if (connection?.open) {
+            showOnlineState("connected", "Signaling went offline. You can keep playing this match.");
+        } else {
+            endOnline("error", "Lost contact with the multiplayer service. Try again.");
         }
     });
 }
 
-function connectTo(hisID) {
-    emojiText.innerText = t1;
-    emojiText.classList.remove("myTurn");
-    tempHover(false);
-    disableBoard = true;
-    updateBoardControls();
-    imTeam = 1;
-    connection = peer.connect(hisID);
-    console.log("Connecting to: " + hisID);
-    connectionLogic(connection);
+function leaveOnline() {
+    endOnline("idle", "Start a game and send the invite link to a friend.");
 }
 
-function disableMulti(error = "") {
+function endOnline(state, message) {
+    clearTimeout(connectionTimeout);
     const previousConnection = connection;
     const previousPeer = peer;
     connection = null;
     peer = null;
+    onlineTeam = null;
+    roundNumber = 0;
+    moveNumber = 0;
+    waitingForRestart = false;
     previousConnection?.close();
     previousPeer?.destroy();
+
+    if (state !== "error" && window.location.hash) {
+        const localURL = new URL(window.location.href);
+        localURL.hash = "";
+        history.replaceState(history.state, "", localURL);
+    }
 
     onlineInvite.hidden = true;
     inviteURL.value = "";
     copyStatus.textContent = "";
-    emojiText.innerText = "";
-    emojiText.classList.remove("myTurn");
-    if (!error) {
-        window.location.hash = "";
-    }
-    showOnlineState(error ? "error" : "idle", error || "Start a game and send the invite link to a friend.");
-    disableBoard = Boolean(winningTeam);
-    if (!board) {
-        drawBoard();
-    }
+    clearSelection();
+    showOnlineState(state, message);
     updateBoardControls();
 }
 
-function connectionLogic(conn) {
+function attachConnection(conn) {
     connection = conn;
+    clearSelection();
+    updateBoardControls();
     showOnlineState("connecting", "Connecting to your friend…");
-    conn.on('open', function () {
+    waitForConnection("Couldn’t establish a direct connection. Try again or switch networks.");
+
+    conn.on("data", message => {
+        if (connection === conn) {
+            receiveOnlineMessage(message);
+        }
+    });
+    conn.on("open", () => {
         if (connection !== conn) {
             return;
         }
-        showOnlineState("connected", "Your friend is connected.");
+        onlineInvite.hidden = true;
+        if (onlineTeam === 2) {
+            startOnlineRound();
+        } else if (roundNumber === 0) {
+            showOnlineState("connecting", "Connected. Waiting for the board…");
+        }
+        updateBoardControls();
+    });
+    conn.on("close", () => {
+        if (connection === conn) {
+            endOnline("expired", roundNumber ? "Your friend disconnected." : "The connection closed before the game started.");
+        }
+    });
+    conn.on("error", () => {
+        if (connection === conn) {
+            endOnline("error", "The connection to your friend was interrupted.");
+        }
+    });
+}
+
+function requestNewGame() {
+    if (onlineTeam === null) {
         drawBoard();
-        // Receive messages
-        conn.on('data', function (data) {
-            if (connection !== conn) {
-                return;
-            }
-            console.log('Received', data);
-
-            tempHover(true);
-            disableBoard = false;
-
-            switch (data.func) {
-                case "switchPlaces":
-                    switchPlaces(data.p1, data.p2, true);
-                    checkVictory(boardTable.rows[data.p1.y].cells[data.p1.x], boardTable.rows[data.p2.y].cells[data.p2.x]);
-                    break;
-                case "movePairs":
-                    movePairs(data.p1, data.p2, data.p3, true);
-                    checkVictory(boardTable.rows[data.p1.y].cells[data.p1.x], boardTable.rows[data.p2.y].cells[data.p2.x]);
-                    break;
-                case "new":
-                    drawBoard(true);
-                    break;
-                case "alert":
-                    alert(data.p1);
-                    break;
-            }
-
-            emojiText.classList.add("myTurn");
+    } else if (connection?.open && roundNumber && !waitingForRestart) {
+        if (onlineTeam === 2) {
+            startOnlineRound();
+        } else {
+            waitingForRestart = true;
+            clearSelection();
             updateBoardControls();
-        });
+            connection.send({ type: "restart", round: roundNumber });
+        }
+    }
+}
 
-        // Send messages
-        conn.send('Hello!');
-    });
-    conn.on('close', function () {
-        if (connection === conn) {
-            disableMulti("Your friend disconnected.");
+function startOnlineRound() {
+    resetOnlineBoard(roundNumber + 1);
+    connection.send({ type: "round", round: roundNumber });
+}
+
+function resetOnlineBoard(round) {
+    clearTimeout(connectionTimeout);
+    roundNumber = round;
+    moveNumber = 0;
+    waitingForRestart = false;
+    drawBoard();
+    showOnlineState("connected", peer?.disconnected
+        ? "Signaling went offline. You can keep playing this match."
+        : "Your friend is connected.");
+}
+
+function sendOnlineMove(move) {
+    if (connection?.open && roundNumber) {
+        connection.send({ type: "move", round: roundNumber, number: ++moveNumber, move });
+    }
+}
+
+function receiveOnlineMessage(message) {
+    if (!message || typeof message !== "object") {
+        return;
+    }
+    if (message.type === "full" && onlineTeam === 1 && !roundNumber) {
+        endOnline("expired", "That game already has two players.");
+    } else if (message.type === "round" && onlineTeam === 1 && message.round === roundNumber + 1) {
+        resetOnlineBoard(message.round);
+    } else if (roundNumber && message.round === roundNumber) {
+        if (message.type === "restart" && onlineTeam === 2) {
+            startOnlineRound();
+        } else if (message.type === "move" && turnTeam !== onlineTeam && !winningTeam && message.number === moveNumber + 1) {
+            if (applyPairMove(message.move)) {
+                moveNumber++;
+            }
         }
-    });
-    conn.on('error', function (err) {
-        if (connection === conn) {
-            console.error(err);
-            disableMulti("Couldn’t connect to your friend.");
-        }
-    });
+    }
+}
+
+drawBoard();
+if (window.location.hash) {
+    toggleDropdown(onlineButton);
+    startOnline();
 }
