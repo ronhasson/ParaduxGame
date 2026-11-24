@@ -1,3 +1,19 @@
 theme: jekyll-theme-minimal
-description: Board game for 2 players. A recreation of the original game with online multiplayer to play with friends from across the world.
+title: Paradux
+tagline: Two-Player Marble Strategy Game
+description: Learn the rules of Paradux and play the two-player marble board game on one device or online with a friend.
+url: https://ronhasson.github.io
+baseurl: /ParaduxGame
+lang: en-US
 logo: boardPic.png
+
+defaults:
+  - scope:
+      path: ""
+      type: pages
+    values:
+      image:
+        path: /images/paradux-share.jpg
+        width: 1200
+        height: 630
+        alt: The Paradux board with black and white marbles alongside the game title.
