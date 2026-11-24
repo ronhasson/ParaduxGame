@@ -17,9 +17,22 @@ Have fun!
 
 ### [Continue to the game >](https://ronhasson.github.io/ParaduxGame/game.html)
 
+## Run locally
+
+From the repository root, serve the game with `npx serve -l 8769` and open
+`http://localhost:8769/game.html`.
+
+To test online play locally, start the room Worker in a second terminal with
+`npx wrangler@4 dev --config worker/wrangler.toml --port 8787`. Start an online
+game and open its invite in a separate browser tab.
+
+The online game uses a Cloudflare Worker with a SQLite-backed Durable Object per
+room. The Worker validates moves and keeps each room's board and turn available
+during a brief disconnect. The frontend is served by GitHub Pages.
+
 #### *todo*
 - [x] base game
 - [x] improve the ui
 - [x] win condition and announce the winner
-- [x] p2p multiplyer
-- [ ] matchmaking?(requires a custom signaling server, not sure if i will do it)
+- [x] online multiplayer
+- [ ] matchmaking

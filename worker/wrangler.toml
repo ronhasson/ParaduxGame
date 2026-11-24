@@ -1,0 +1,21 @@
+name = "paradux-rooms"
+main = "rooms.mjs"
+compatibility_date = "2026-10-01"
+workers_dev = true
+preview_urls = false
+
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "GameRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["GameRoom"]
+
+[[ratelimits]]
+name = "ROOM_RATE"
+namespace_id = "3186701"
+
+[ratelimits.simple]
+limit = 30
+period = 60

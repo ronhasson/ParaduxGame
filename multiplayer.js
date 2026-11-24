@@ -1,284 +1,292 @@
-const onlineProtocol = "paradux-v1";
-const connectionWaitMs = 25000;
+import * as rules from "./rules.js?v=1";
+
+const productionRoomURL = "https://paradux-rooms.ron23231.workers.dev";
+const local = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+const workerPreview = window.location.hostname.endsWith(".workers.dev");
+const roomURL = local ? "http://127.0.0.1:8787" :
+    workerPreview ? window.location.origin : productionRoomURL;
+const storageKey = "paradux-room-v2";
+const invitePattern = /^[a-f0-9]{32}$/;
+const protocol = "paradux-v2";
+const defaultStatus = "Start a game and send the invite link to a friend.";
+
 const onlineButton = document.getElementById("multSettBtn");
-const onlineAction = document.getElementById("eMultiBtn");
+const action = document.getElementById("eMultiBtn");
 const onlineStatus = document.getElementById("onlineStatus");
-const onlineInvite = document.getElementById("onlineInvite");
+const invite = document.getElementById("onlineInvite");
 const inviteURL = document.getElementById("inviteURL");
-const leaveInviteButton = document.getElementById("leaveInviteBtn");
+const leaveInvite = document.getElementById("leaveInviteBtn");
 const copyStatus = document.getElementById("copyStatus");
 const onlineMarble = document.getElementById("teamEmoji");
 
-let peer = null;
-let connection = null;
-let onlineTeam = null;
-let roundNumber = 0;
-let moveNumber = 0;
-let waitingForRestart = false;
-let connectionTimeout;
+let session = null;
+let creating = null;
+let socket = null;
+let timer;
+let retryTimer;
+let pongTimer;
+let attempts = 0;
+let version = -1;
+let both = false;
+let pending = false;
+let team = null;
 
-const onlineActions = {
+const labels = {
     idle: "Start online game",
     opening: "Cancel",
     ready: "Close online game",
     connecting: "Cancel",
     connected: "Disconnect",
-    expired: "Start online game",
     error: "Try again"
 };
 
-function showOnlineState(state, message) {
-    onlineStatus.textContent = message;
-    onlineStatus.dataset.state = state === "expired" ? "error" : state;
-    onlineButton.dataset.onlineState = state;
-    onlineAction.textContent = onlineActions[state];
-    onlineAction.classList.toggle("panel-primary", state === "idle" || state === "error" || state === "expired");
-    leaveInviteButton.hidden = state !== "error" || !window.location.hash;
-}
-
-function updateOnlineTurn() {
-    const ownsTurn = onlineTeam === turnTeam && !disableBoard;
-    onlineMarble.textContent = onlineTeam === 2 ? "⚫" : onlineTeam === 1 ? "⚪" : "";
-    onlineMarble.classList.toggle("myTurn", ownsTurn);
-    if (onlineTeam !== null) {
-        const color = onlineTeam === 2 ? "Black" : "White";
-        onlineMarble.setAttribute("aria-label", ownsTurn ? color + " · Your turn" : color);
-        onlineMarble.title = ownsTurn ? "Your turn" : "You play " + color.toLowerCase();
-    }
-}
-
-function toggleOnline() {
-    if (peer) {
-        leaveOnline();
-    } else {
-        startOnline();
-    }
-}
-
-function waitForConnection(message) {
-    clearTimeout(connectionTimeout);
-    connectionTimeout = setTimeout(() => endOnline("error", message), connectionWaitMs);
-}
-
-function startOnline() {
-    const joinID = window.location.hash.slice(1);
-    if (joinID && !/^[a-z0-9_-]{1,128}$/i.test(joinID)) {
-        endOnline("expired", "This invite is invalid. Ask your friend for a new link.");
-        return;
-    }
-    if (joinID) {
-        onlineTeam = 1;
-        clearSelection();
-        updateBoardControls();
-    }
-    showOnlineState("opening", joinID ? "Connecting to your friend…" : "Creating your invite…");
-    waitForConnection("The signaling service took too long to respond. Try again.");
-    let activePeer;
+function remember(value) {
     try {
-        // Supplying an ID makes opening the signaling socket cancellable immediately.
-        const id = Array.from(crypto.getRandomValues(new Uint8Array(16)),
-            byte => byte.toString(16).padStart(2, "0")).join("");
-        activePeer = new peerjs.Peer(id, {
-            config: { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] }
-        });
+        if (value) sessionStorage.setItem(storageKey, JSON.stringify(value));
+        else sessionStorage.removeItem(storageKey);
     } catch {
-        endOnline("error", "This browser couldn’t start multiplayer. Try again.");
-        return;
+        // The active connection can still play if browser storage is unavailable.
     }
-    peer = activePeer;
+}
 
-    activePeer.on("open", id => {
-        if (peer !== activePeer) {
-            return;
-        }
-        clearTimeout(connectionTimeout);
-        if (joinID) {
-            const joining = activePeer.connect(joinID, {
-                label: onlineProtocol,
-                serialization: "json",
-                reliable: true
-            });
-            if (joining) {
-                attachConnection(joining);
-            } else {
-                endOnline("error", "Couldn’t connect to your friend. Try again.");
-            }
-            return;
-        }
-        const url = new URL(window.location.href);
-        url.hash = id;
-        inviteURL.value = url.href;
-        onlineInvite.hidden = false;
-        showOnlineState("ready", "Invite ready. Waiting for your friend to join.");
-    });
+function savedSession() {
+    try {
+        const value = JSON.parse(sessionStorage.getItem(storageKey));
+        return value && invitePattern.test(value.room) && invitePattern.test(value.token) &&
+            ["host", "guest"].includes(value.role) ? value : null;
+    } catch {
+        return null;
+    }
+}
 
-    activePeer.on("connection", incoming => {
-        if (peer !== activePeer || incoming.label !== onlineProtocol) {
-            incoming.close();
-            return;
-        }
-        if (connection || joinID) {
-            incoming.on("open", () => {
-                incoming.send({ type: "full" });
-                incoming.close({ flush: true });
-            });
-            return;
-        }
-        onlineTeam = 2;
-        attachConnection(incoming);
-    });
+function token() {
+    return Array.from(crypto.getRandomValues(new Uint8Array(16)),
+        value => value.toString(16).padStart(2, "0")).join("");
+}
 
-    activePeer.on("error", error => {
-        if (peer !== activePeer) {
-            return;
-        }
-        if (connection?.open) {
-            return;
-        }
-        if (error.type === "peer-unavailable" && joinID) {
-            endOnline("expired", "This invite has expired or the host is offline. Ask for a new link.");
-        } else {
-            endOnline("error", "Couldn’t connect to the multiplayer service. Try again.");
-        }
-    });
+function showState(state, message) {
+    onlineStatus.textContent = message;
+    onlineStatus.dataset.state = state;
+    onlineButton.dataset.onlineState = state;
+    action.textContent = labels[state];
+    action.classList.toggle("panel-primary", state === "idle" || state === "error");
+    leaveInvite.hidden = state !== "error" || (!session && !window.location.hash);
+}
 
-    activePeer.on("disconnected", () => {
-        if (peer !== activePeer) {
-            return;
-        }
-        if (connection?.open) {
-            showOnlineState("connected", "Signaling went offline. You can keep playing this match.");
-        } else {
-            endOnline("error", "Lost contact with the multiplayer service. Try again.");
-        }
-    });
+function showInvite(room) {
+    const url = new URL(window.location.href);
+    url.hash = room;
+    inviteURL.value = url.href;
+    invite.hidden = false;
+}
+
+function clearInvite() {
+    invite.hidden = true;
+    inviteURL.value = "";
+    copyStatus.textContent = "";
+}
+
+function clearHash() {
+    const url = new URL(window.location.href);
+    url.hash = "";
+    history.replaceState(history.state, "", url);
+}
+
+function finishOnline(message = defaultStatus) {
+    const previous = socket;
+    socket = null;
+    creating?.abort();
+    creating = null;
+    clearTimeout(timer);
+    clearTimeout(retryTimer);
+    clearTimeout(pongTimer);
+    if (previous && previous.readyState < WebSocket.CLOSING) previous.close();
+    session = null;
+    remember(null);
+    clearHash();
+    attempts = 0;
+    version = -1;
+    team = null;
+    both = false;
+    pending = false;
+    clearInvite();
+    clearSelection();
+    showState("idle", message);
+    updateBoardControls();
 }
 
 function leaveOnline() {
-    endOnline("idle", "Start a game and send the invite link to a friend.");
+    if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: "leave" }));
+    finishOnline();
 }
 
-function endOnline(state, message) {
-    clearTimeout(connectionTimeout);
-    const previousConnection = connection;
-    const previousPeer = peer;
-    connection = null;
-    peer = null;
-    onlineTeam = null;
-    roundNumber = 0;
-    moveNumber = 0;
-    waitingForRestart = false;
-    previousConnection?.close();
-    previousPeer?.destroy();
-
-    if (state !== "error" && window.location.hash) {
-        const localURL = new URL(window.location.href);
-        localURL.hash = "";
-        history.replaceState(history.state, "", localURL);
-    }
-
-    onlineInvite.hidden = true;
-    inviteURL.value = "";
-    copyStatus.textContent = "";
-    clearSelection();
-    showOnlineState(state, message);
-    updateBoardControls();
-}
-
-function attachConnection(conn) {
-    connection = conn;
+async function createRoom() {
+    const controller = new AbortController();
+    creating = controller;
+    const deadline = setTimeout(() => controller.abort(), 12000);
+    showState("opening", "Creating your invite…");
     clearSelection();
     updateBoardControls();
-    showOnlineState("connecting", "Connecting to your friend…");
-    waitForConnection("Couldn’t establish a direct connection. Try again or switch networks.");
-
-    conn.on("data", message => {
-        if (connection === conn) {
-            receiveOnlineMessage(message);
+    try {
+        const result = await fetch(roomURL + "/rooms", { method: "POST", signal: controller.signal });
+        const data = await result.json().catch(() => ({}));
+        if (creating !== controller) return;
+        if (!result.ok || !invitePattern.test(data.room) || !invitePattern.test(data.token)) {
+            throw new Error(data.error || "Couldn’t create a game. Try again shortly.");
         }
-    });
-    conn.on("open", () => {
-        if (connection !== conn) {
-            return;
-        }
-        onlineInvite.hidden = true;
-        if (onlineTeam === 2) {
-            startOnlineRound();
-        } else if (roundNumber === 0) {
-            showOnlineState("connecting", "Connected. Waiting for the board…");
-        }
-        updateBoardControls();
-    });
-    conn.on("close", () => {
-        if (connection === conn) {
-            endOnline("expired", roundNumber ? "Your friend disconnected." : "The connection closed before the game started.");
-        }
-    });
-    conn.on("error", () => {
-        if (connection === conn) {
-            endOnline("error", "The connection to your friend was interrupted.");
-        }
-    });
-}
-
-function requestNewGame() {
-    if (onlineTeam === null) {
-        drawBoard();
-    } else if (connection?.open && roundNumber && !waitingForRestart) {
-        if (onlineTeam === 2) {
-            startOnlineRound();
-        } else {
-            waitingForRestart = true;
-            clearSelection();
+        creating = null;
+        session = { room: data.room, token: data.token, role: "host" };
+        remember(session);
+        connect();
+    } catch (error) {
+        if (creating === controller) {
+            creating = null;
+            showState("error", error.name === "AbortError" ? "Creating the game timed out. Try again." :
+                error.message || "Couldn’t reach the game service. Try again.");
             updateBoardControls();
-            connection.send({ type: "restart", round: roundNumber });
         }
+    } finally {
+        clearTimeout(deadline);
     }
 }
 
-function startOnlineRound() {
-    resetOnlineBoard(roundNumber + 1);
-    connection.send({ type: "round", round: roundNumber });
-}
-
-function resetOnlineBoard(round) {
-    clearTimeout(connectionTimeout);
-    roundNumber = round;
-    moveNumber = 0;
-    waitingForRestart = false;
-    drawBoard();
-    showOnlineState("connected", peer?.disconnected
-        ? "Signaling went offline. You can keep playing this match."
-        : "Your friend is connected.");
-}
-
-function sendOnlineMove(move) {
-    if (connection?.open && roundNumber) {
-        connection.send({ type: "move", round: roundNumber, number: ++moveNumber, move });
-    }
-}
-
-function receiveOnlineMessage(message) {
-    if (!message || typeof message !== "object") {
+function reconnect() {
+    if (!session) return;
+    both = false;
+    pending = false;
+    clearSelection();
+    updateBoardControls();
+    if (attempts >= 5) {
+        showState("error", "Connection interrupted. Try to rejoin the game.");
         return;
     }
-    if (message.type === "full" && onlineTeam === 1 && !roundNumber) {
-        endOnline("expired", "That game already has two players.");
-    } else if (message.type === "round" && onlineTeam === 1 && message.round === roundNumber + 1) {
-        resetOnlineBoard(message.round);
-    } else if (roundNumber && message.round === roundNumber) {
-        if (message.type === "restart" && onlineTeam === 2) {
-            startOnlineRound();
-        } else if (message.type === "move" && turnTeam !== onlineTeam && !winningTeam && message.number === moveNumber + 1) {
-            if (applyPairMove(message.move)) {
-                moveNumber++;
+    showState("connecting", "Reconnecting to the game…");
+    retryTimer = setTimeout(connect, Math.min(8000, 500 * 2 ** attempts++));
+}
+
+function handleDisconnect(current, code) {
+    if (socket !== current) return;
+    socket = null;
+    clearTimeout(timer);
+    clearTimeout(pongTimer);
+    if (code === 4000) finishOnline("This game was opened in another tab.");
+    else reconnect();
+}
+
+function closeStalledSocket(current) {
+    if (socket !== current) return;
+    // Start the retry even if the old socket cannot finish its close handshake.
+    handleDisconnect(current);
+    if (current.readyState < WebSocket.CLOSING) current.close(4001, "Connection timed out");
+}
+
+function connect() {
+    if (!session || !roomURL) return;
+    clearTimeout(retryTimer);
+    both = false;
+    showState("connecting", version < 0 ? "Connecting to the game…" : "Reconnecting to the game…");
+    updateBoardControls();
+    const url = new URL("/rooms/" + session.room, roomURL);
+    url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+    const current = new WebSocket(url, [protocol, session.role + "." + session.token]);
+    socket = current;
+    timer = setTimeout(() => closeStalledSocket(current), 9000);
+
+    current.addEventListener("message", event => {
+        if (socket !== current) return;
+        if (event.data === "pong") {
+            clearTimeout(pongTimer);
+            return;
+        }
+        const message = JSON.parse(event.data);
+        if (message.type === "ended") {
+            finishOnline(message.message);
+        } else if (message.type === "state") {
+            clearTimeout(timer);
+            attempts = 0;
+            both = message.both;
+            team = message.team;
+            pending = false;
+            if (version !== message.version) {
+                version = message.version;
+                renderGame(message.game);
+            } else updateBoardControls();
+            if (both) {
+                clearInvite();
+                showState("connected", "Your friend is connected.");
+            } else if (message.started) {
+                clearInvite();
+                showState("connecting", "Waiting for your friend to reconnect…");
+            } else {
+                if (session.role === "host") showInvite(session.room);
+                showState("ready", "Invite ready. Waiting for your friend to join.");
             }
         }
+    });
+    current.addEventListener("close", event => handleDisconnect(current, event.code));
+}
+
+function checkConnection() {
+    if (document.visibilityState !== "visible" || socket?.readyState !== WebSocket.OPEN) return;
+    const current = socket;
+    clearTimeout(pongTimer);
+    current.send("ping");
+    pongTimer = setTimeout(() => closeStalledSocket(current), 6000);
+}
+
+document.addEventListener("visibilitychange", checkConnection);
+setInterval(checkConnection, 25000);
+
+function toggleOnline() {
+    if (creating || socket || (session && attempts < 5)) {
+        leaveOnline();
+    } else if (!roomURL) {
+        showState("error", "Online play is unavailable on this preview.");
+    } else if (session) {
+        attempts = 0;
+        connect();
+    } else {
+        createRoom();
     }
 }
 
-drawBoard();
-if (window.location.hash) {
+function status() {
+    return { online: Boolean(session || creating), team, canSend: socket?.readyState === WebSocket.OPEN && both && !pending };
+}
+
+function send(type, move) {
+    if (!status().canSend) return;
+    pending = true;
+    clearSelection();
+    updateBoardControls();
+    socket.send(JSON.stringify({ type, version, move }));
+}
+
+function updateTurn(canPlay) {
+    const color = team === rules.black ? "Black" : team === rules.white ? "White" : "";
+    onlineMarble.textContent = color === "Black" ? "⚫" : color === "White" ? "⚪" : "";
+    onlineMarble.classList.toggle("myTurn", Boolean(color && canPlay));
+    if (color) {
+        onlineMarble.setAttribute("aria-label", canPlay ? color + " · Your turn" : color);
+        onlineMarble.title = canPlay ? "Your turn" : "You play " + color.toLowerCase();
+    }
+}
+
+window.paraduxRules = rules;
+window.roomClient = { status, send, updateTurn };
+window.toggleOnline = toggleOnline;
+window.leaveOnline = leaveOnline;
+
+renderGame(rules.freshGame());
+const hash = window.location.hash.slice(1);
+const saved = savedSession();
+if (roomURL && (hash || saved)) {
     toggleDropdown(onlineButton);
-    startOnline();
+    if (hash && !invitePattern.test(hash)) {
+        finishOnline("This invite is invalid. Ask your friend for a new link.");
+    } else {
+        session = hash && saved?.room !== hash ? { room: hash, token: token(), role: "guest" } : saved;
+        remember(session);
+        connect();
+    }
 }
