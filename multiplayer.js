@@ -6,7 +6,8 @@ const workerPreview = window.location.hostname.endsWith(".workers.dev");
 const roomURL = local ? "http://127.0.0.1:8787" :
     workerPreview ? window.location.origin : productionRoomURL;
 const storageKey = "paradux-room-v2";
-const invitePattern = /^[a-f0-9]{32}$/;
+const invitePattern = /^[A-Za-z0-9_-]{12}$/;
+const sessionTokenPattern = /^[a-f0-9]{32}$/;
 const protocol = "paradux-v2";
 const defaultStatus = "Start a game and send the invite link to a friend.";
 const reconnectingMarble = { state: "reconnecting", label: "Reconnecting" };
@@ -54,7 +55,7 @@ function remember(value) {
 function savedSession() {
     try {
         const value = JSON.parse(sessionStorage.getItem(storageKey));
-        return value && invitePattern.test(value.room) && invitePattern.test(value.token) &&
+        return value && invitePattern.test(value.room) && sessionTokenPattern.test(value.token) &&
             ["host", "guest"].includes(value.role) ? value : null;
     } catch {
         return null;
@@ -134,7 +135,7 @@ async function createRoom() {
         const result = await fetch(roomURL + "/rooms", { method: "POST", signal: controller.signal });
         const data = await result.json().catch(() => ({}));
         if (creating !== controller) return;
-        if (!result.ok || !invitePattern.test(data.room) || !invitePattern.test(data.token)) {
+        if (!result.ok || !invitePattern.test(data.room) || !sessionTokenPattern.test(data.token)) {
             throw new Error(data.error || "Couldn’t create a game. Try again shortly.");
         }
         creating = null;

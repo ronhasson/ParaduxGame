@@ -3,7 +3,7 @@ import { black, freshGame, playMove, white } from "../rules.js";
 
 const siteOrigin = "https://ronhasson.github.io";
 const protocol = "paradux-v2";
-const roomIdPattern = /^[a-f0-9]{32}$/;
+const roomIdPattern = /^[A-Za-z0-9_-]{12}$/;
 const localHost = /^(localhost|127\.0\.0\.1)$/;
 const idleRoomMs = 2 * 60 * 60 * 1000;
 const reconnectMs = 90 * 1000;
@@ -11,6 +11,12 @@ const socketOpen = 1;
 
 function token() {
     return crypto.randomUUID().replaceAll("-", "");
+}
+
+function shortRoomId() {
+    // Nine bytes produce 12 Base64 characters without padding.
+    const bytes = crypto.getRandomValues(new Uint8Array(9));
+    return btoa(String.fromCharCode(...bytes)).replaceAll("+", "-").replaceAll("/", "_");
 }
 
 function response(body, status, origin) {
@@ -39,7 +45,7 @@ export default {
         if (!success) return response({ error: "Too many room requests. Try again shortly." }, 429, origin);
 
         if (isCreate) {
-            const id = token();
+            const id = shortRoomId();
             const hostToken = token();
             const created = await env.ROOMS.getByName(id).fetch("https://room/create", {
                 method: "POST",

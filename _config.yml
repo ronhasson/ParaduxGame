@@ -13,7 +13,7 @@ defaults:
       type: pages
     values:
       image:
-        path: /images/paradux-share.jpg
+        path: /images/paradux-share.jpg?v=2
         width: 1200
         height: 630
         alt: The Paradux board with black and white marbles alongside the game title.
