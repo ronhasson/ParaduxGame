@@ -22,7 +22,7 @@ function updateBoardControls() {
     localTurnMarble.hidden = !localTurnLabels.checked || online || disableBoard;
     if (!localTurnMarble.hidden) {
         const blackTurn = currentGame.turn === black;
-        localTurnMarble.textContent = blackTurn ? "⚫" : "⚪";
+        localTurnMarble.dataset.color = blackTurn ? "black" : "white";
         localTurnMarble.setAttribute("aria-label", blackTurn ? "Black’s turn" : "White’s turn");
     }
     roomClient.updateTurn(!disableBoard);

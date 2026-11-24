@@ -1,38 +1,44 @@
 # Paradux
-Board game for 2 players. A recreation of the original game with online multiplayer to play with friends from across the world.
+
+Paradux is a two-player strategy game on a hexagonal board. Play together on one device or invite a friend to join online.
+
+[Play Paradux](https://ronhasson.github.io/ParaduxGame/game.html)
 
 ## How to play
-Each of the 2 plays picks a color, black or white. **The goal of each player is to get 4 marbles of his color in a row** in any rotation.
 
-In a turn, the player need to **select a pair of ajasent balls of a different color** ⚫️⚪️ and then can do only one of the following acations:
+Black moves first. On each turn, select two adjacent marbles of different colors and choose how to move the pair.
 
-- **Move** the pair 1 step together to a direction of his liking (as long as there is space for both of them without rotating them)
-- **Switch** between the pair ( ⚫️⚪️ -> ⚪️⚫️ )
+- **Slide** both marbles one space in the same direction. Keep the pair in the same orientation and use one of the highlighted destinations.
+- **Switch** the marbles to swap their positions.
 
-Once someone gets 4 marbles of his color in a row, the game ends and he is the winner.
+The first color to form a straight line of four or more marbles wins. If a move forms a winning line for both colors at once, play continues.
 
-Have fun!
+On a shared device, enable **Show turns in local play** in **Settings** to see whose turn it is.
 
----
+## Play online
 
-### [Continue to the game >](https://ronhasson.github.io/ParaduxGame/game.html)
+1. Open **Online** and select **Start online game**.
+2. Copy the invite link and send it to your friend. The host plays black and the guest plays white.
+3. Watch the toolbar marble as you play. Amber means it's your turn, gray means wait, blue means you're reconnecting, and red indicates a lost connection.
+
+The game tries to reconnect automatically and holds the board for up to 90 seconds after a player disconnects. If you need to rejoin, use the same browser tab.
 
 ## Run locally
 
-From the repository root, serve the game with `npx serve -l 8769` and open
-`http://localhost:8769/game.html`.
+With Node.js and npm installed, start the static server from the repository root.
 
-To test online play locally, start the room Worker in a second terminal with
-`npx wrangler@4 dev --config worker/wrangler.toml --port 8787`. Start an online
-game and open its invite in a separate browser tab.
+```sh
+npx serve -l 8769
+```
 
-The online game uses a Cloudflare Worker with a SQLite-backed Durable Object per
-room. The Worker validates moves and keeps each room's board and turn available
-during a brief disconnect. The frontend is served by GitHub Pages.
+Once the server is running, open the game in your browser. [Local game](http://127.0.0.1:8769/game.html)
 
-#### *todo*
-- [x] base game
-- [x] improve the ui
-- [x] win condition and announce the winner
-- [x] online multiplayer
-- [ ] matchmaking
+To try online play locally, keep the static server running and start the room Worker in a second terminal.
+
+```sh
+npx wrangler@4 dev --config worker/wrangler.toml --local --ip 127.0.0.1 --port 8787
+```
+
+With the Worker running, start an online game and open the invite in another tab.
+
+GitHub Pages hosts the frontend. A Cloudflare Worker handles WebSocket connections, and a Durable Object validates moves and stores the board and turn for each room. The frontend and Worker share the move rules in [`rules.js`](rules.js).

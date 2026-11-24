@@ -9,6 +9,7 @@ const storageKey = "paradux-room-v2";
 const invitePattern = /^[a-f0-9]{32}$/;
 const protocol = "paradux-v2";
 const defaultStatus = "Start a game and send the invite link to a friend.";
+const reconnectingMarble = { state: "reconnecting", label: "Reconnecting" };
 
 const onlineButton = document.getElementById("multSettBtn");
 const action = document.getElementById("eMultiBtn");
@@ -30,6 +31,7 @@ let version = -1;
 let both = false;
 let pending = false;
 let team = null;
+let connectionCue = null;
 
 const labels = {
     idle: "Start online game",
@@ -64,7 +66,8 @@ function token() {
         value => value.toString(16).padStart(2, "0")).join("");
 }
 
-function showState(state, message) {
+function showState(state, message, cue = null) {
+    connectionCue = cue;
     onlineStatus.textContent = message;
     onlineStatus.dataset.state = state;
     onlineButton.dataset.onlineState = state;
@@ -155,13 +158,15 @@ function reconnect() {
     both = false;
     pending = false;
     clearSelection();
-    updateBoardControls();
     if (attempts >= 5) {
-        showState("error", "Connection interrupted. Try to rejoin the game.");
-        return;
+        showState("error", "Connection interrupted. Try to rejoin the game.", {
+            state: "disconnected", label: "Connection lost"
+        });
+    } else {
+        showState("connecting", "Reconnecting to the game…", reconnectingMarble);
+        retryTimer = setTimeout(connect, Math.min(8000, 500 * 2 ** attempts++));
     }
-    showState("connecting", "Reconnecting to the game…");
-    retryTimer = setTimeout(connect, Math.min(8000, 500 * 2 ** attempts++));
+    updateBoardControls();
 }
 
 function handleDisconnect(current, code) {
@@ -184,7 +189,7 @@ function connect() {
     if (!session || !roomURL) return;
     clearTimeout(retryTimer);
     both = false;
-    showState("connecting", version < 0 ? "Connecting to the game…" : "Reconnecting to the game…");
+    showState("connecting", version < 0 ? "Connecting to the game…" : "Reconnecting to the game…", reconnectingMarble);
     updateBoardControls();
     const url = new URL("/rooms/" + session.room, roomURL);
     url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
@@ -207,20 +212,22 @@ function connect() {
             both = message.both;
             team = message.team;
             pending = false;
-            if (version !== message.version) {
-                version = message.version;
-                renderGame(message.game);
-            } else updateBoardControls();
             if (both) {
                 clearInvite();
                 showState("connected", "Your friend is connected.");
             } else if (message.started) {
                 clearInvite();
-                showState("connecting", "Waiting for your friend to reconnect…");
+                showState("connecting", "Waiting for your friend to reconnect…", {
+                    state: "disconnected", label: "Your friend disconnected"
+                });
             } else {
                 if (session.role === "host") showInvite(session.room);
                 showState("ready", "Invite ready. Waiting for your friend to join.");
             }
+            if (version !== message.version) {
+                version = message.version;
+                renderGame(message.game);
+            } else updateBoardControls();
         }
     });
     current.addEventListener("close", event => handleDisconnect(current, event.code));
@@ -264,12 +271,14 @@ function send(type, move) {
 
 function updateTurn(canPlay) {
     const color = team === rules.black ? "Black" : team === rules.white ? "White" : "";
-    onlineMarble.textContent = color === "Black" ? "⚫" : color === "White" ? "⚪" : "";
-    onlineMarble.classList.toggle("myTurn", Boolean(color && canPlay));
-    if (color) {
-        onlineMarble.setAttribute("aria-label", canPlay ? color + " · Your turn" : color);
-        onlineMarble.title = canPlay ? "Your turn" : "You play " + color.toLowerCase();
-    }
+    onlineMarble.hidden = !color;
+    if (!color) return;
+
+    const label = connectionCue?.label || (canPlay ? "Your turn" : "");
+    onlineMarble.dataset.color = color.toLowerCase();
+    onlineMarble.dataset.state = connectionCue?.state || (canPlay ? "turn" : "waiting");
+    onlineMarble.setAttribute("aria-label", label ? color + " · " + label : color);
+    onlineMarble.title = label || "You play " + color.toLowerCase();
 }
 
 window.paraduxRules = rules;

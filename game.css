@@ -307,19 +307,96 @@ td.moveable {
 }
 
 .turn-marble:not([hidden]) {
-    display: inline-grid;
-    place-items: center;
+    position: relative;
+    isolation: isolate;
+    display: inline-block;
+    flex: 0 0 auto;
     box-sizing: border-box;
     inline-size: 1.4em;
     block-size: 1.4em;
-    border: 0.12em solid var(--selection-orange);
+    border: 0.12em solid #8b9796;
     border-radius: 50%;
     font-size: 1.1em;
-    line-height: 1;
 }
 
-#teamEmoji:empty {
-    display: none;
+.turn-marble::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--marble-face);
+}
+
+.turn-marble[data-color="black"] {
+    --marble-face: radial-gradient(circle at 31% 25%, #6c665e, #272421 42%, #0b0b0c 76%);
+}
+
+.turn-marble[data-color="white"] {
+    --marble-face: radial-gradient(circle at 31% 24%, #fff, #f6f3e9 42%, #adaaa4 83%);
+}
+
+.turn-marble[data-state="turn"] {
+    border-color: var(--selection-orange);
+    box-shadow: 0 0 0.145em color-mix(in srgb, var(--selection-orange) 42%, transparent);
+}
+
+.turn-marble[data-state="reconnecting"] {
+    --reconnect-blue: #79cbff;
+    border-color: var(--reconnect-blue);
+    box-shadow: 0 0 0.44em color-mix(in srgb, var(--reconnect-blue) 65%, transparent);
+}
+
+.turn-marble[data-state="reconnecting"]::after {
+    content: "";
+    position: absolute;
+    inset: -0.29em;
+    border: 0.1em solid color-mix(in srgb, var(--reconnect-blue) 35%, transparent);
+    border-block-start-color: var(--reconnect-blue);
+    border-inline-end-color: var(--reconnect-blue);
+    border-radius: 50%;
+}
+
+.turn-marble[data-state="disconnected"] {
+    --disconnect-red: #ff807e;
+    border-color: var(--disconnect-red);
+}
+
+.turn-marble[data-state="disconnected"]::after {
+    content: "×";
+    position: absolute;
+    inset: auto -0.38em -0.34em auto;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    inline-size: 1.36em;
+    aspect-ratio: 1;
+    border: 1px solid var(--ui-header);
+    border-radius: 50%;
+    background: var(--disconnect-red);
+    color: #201213;
+    font: 750 0.52em/1 system-ui, sans-serif;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .turn-marble[data-state="turn"] {
+        animation: turn-halo 1.4s ease-in-out infinite alternate;
+    }
+
+    .turn-marble[data-state="reconnecting"]::after {
+        animation: turn-reconnect 1.25s linear infinite;
+    }
+}
+
+@keyframes turn-halo {
+    to {
+        filter: drop-shadow(0 0 0.155em var(--selection-orange));
+    }
+}
+
+@keyframes turn-reconnect {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 #gameResult {
@@ -955,20 +1032,6 @@ label.setting-row {
 .winningBall {
     animation: colorRotate 6s linear 0s infinite;
     border: 0.7em solid;
-}
-
-@keyframes myTurnAnim {
-    from {
-        box-shadow: 0em 0em 0em #ffb400 inset;
-    }
-
-    to {
-        box-shadow: 0em -1.5em 1.1em #ffb400 inset;
-    }
-}
-
-.myTurn {
-    animation: myTurnAnim 2s ease 0s infinite alternate;
 }
 
 @font-face {
