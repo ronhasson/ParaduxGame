@@ -568,6 +568,38 @@ td.moveable {
     cursor: pointer;
 }
 
+#boardDiv > table.pair-selected > tr > td:is(.selected, .selected2) {
+    cursor: grab;
+    touch-action: none;
+}
+
+#boardDiv > table.pair-dragging > tr > td {
+    cursor: grabbing;
+}
+
+.pair-dragging td:is(.selected, .selected2) {
+    opacity: 0.55;
+}
+
+.pair-dragging td.drop-target {
+    border: 0.3em solid #14705c !important;
+}
+
+.pair-drag-preview {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.pair-drag-preview > span {
+    position: absolute;
+    border-radius: 50%;
+    box-shadow: 0 0.2rem 0.4rem #20150960;
+    transform: translate(calc(var(--drag-x, 0px) - 50%), calc(var(--drag-y, 0px) - 50%));
+}
+
 /* Animate drawer travel independently of its responsive position. */
 @property --drawer-travel {
     syntax: "<length-percentage>";

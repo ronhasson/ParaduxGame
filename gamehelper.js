@@ -15,6 +15,11 @@ function renderGame(game) {
         }
         boardDiv.appendChild(boardTable);
         boardTable.addEventListener("click", tableClicked);
+        boardTable.addEventListener("pointerdown", startPairDrag);
+        boardTable.addEventListener("pointermove", updatePairDrag);
+        boardTable.addEventListener("pointerup", endPairDrag);
+        boardTable.addEventListener("pointercancel", endPairDrag);
+        boardTable.addEventListener("lostpointercapture", endPairDrag);
         changeStyle(localStorage.getItem("style") || "def");
     }
 
@@ -42,6 +47,7 @@ function showPairs(first) {
 
 function showMoveable(first, second) {
     const { slideDestinations, pairDirections } = paraduxRules;
+    boardTable.querySelectorAll(".moveable").forEach(cell => cell.classList.remove("moveable"));
     for (const [dx, dy] of pairDirections) {
         const target = { x: first.x + dx, y: first.y + dy };
         if (slideDestinations(currentGame.cells, first, second, target)) {
